@@ -1,0 +1,197 @@
+---
+title: "practice to get csv from github"
+format: html
+---
+
+
+```{r}
+library(tidyverse)
+# Step 1: Read CSV without column names
+mlb_data_raw <- read_csv("https://raw.githubusercontent.com/nwt5144/FinalProjectStat184/refs/heads/main/stats.csv")
+head(mlb_data_raw, 5)
+```
+
+
+
+
+```{r}
+# Load necessary libraries
+library(dplyr)
+library(knitr)
+library(kableExtra)
+
+# Create Summary Statistics Table ----
+batting_data <- mlb_data_raw %>%
+  select(
+    home_run, 
+    walk, 
+    k_percent, 
+    b_intent_walk, 
+    avg_swing_speed, 
+    launch_angle_avg,
+    hard_hit_percent,
+    whiff_percent
+  )
+
+# Calculate summary statistics
+summary_table <- batting_data %>%
+  summarise(
+    Variable = c(
+      "home_run", 
+      "walk", 
+      "k_percent", 
+      "b_intent_walk", 
+      "avg_swing_speed", 
+      "launch_angle_avg",
+      "hard_hit_percent",
+      "whiff_percent"
+    ),
+    Mean = c(
+      mean(home_run, na.rm = TRUE), 
+      mean(walk, na.rm = TRUE), 
+      mean(k_percent, na.rm = TRUE), 
+      mean(b_intent_walk, na.rm = TRUE), 
+      mean(avg_swing_speed, na.rm = TRUE), 
+      mean(launch_angle_avg, na.rm = TRUE),
+      mean(hard_hit_percent, na.rm = TRUE), 
+      mean(whiff_percent, na.rm = TRUE)
+    ),
+    Median = c(
+      median(home_run, na.rm = TRUE), 
+      median(walk, na.rm = TRUE), 
+      median(k_percent, na.rm = TRUE), 
+      median(b_intent_walk, na.rm = TRUE), 
+      median(avg_swing_speed, na.rm = TRUE), 
+      median(launch_angle_avg, na.rm = TRUE),
+      median(hard_hit_percent, na.rm = TRUE), 
+      median(whiff_percent, na.rm = TRUE)
+    ),
+    Minimum = c(
+      min(home_run, na.rm = TRUE), 
+      min(walk, na.rm = TRUE), 
+      min(k_percent, na.rm = TRUE), 
+      min(b_intent_walk, na.rm = TRUE), 
+      min(avg_swing_speed, na.rm = TRUE), 
+      min(launch_angle_avg, na.rm = TRUE),
+      min(hard_hit_percent, na.rm = TRUE), 
+      min(whiff_percent, na.rm = TRUE)
+    ),
+    Maximum = c(
+      max(home_run, na.rm = TRUE), 
+      max(walk, na.rm = TRUE), 
+      max(k_percent, na.rm = TRUE), 
+      max(b_intent_walk, na.rm = TRUE), 
+      max(avg_swing_speed, na.rm = TRUE), 
+      max(launch_angle_avg, na.rm = TRUE),
+      max(hard_hit_percent, na.rm = TRUE), 
+      max(whiff_percent, na.rm = TRUE)
+    )
+  ) %>%
+  reframe(Variable, Mean, Median, Minimum, Maximum)  # <-- Use reframe() instead of summarise()
+
+# Display Summary Statistics Table ----
+summary_table %>%
+  kable(
+    caption = "Summary Statistics for Key Batting Variables", 
+    digits = 2, 
+    align = c("l", rep("c", 4))
+  ) %>%
+  kable_styling(
+    bootstrap_options = c("striped", "hover", "condensed"), 
+    full_width = FALSE, 
+    font_size = 14
+  ) %>%
+  row_spec(0, bold = TRUE)  # Bold header row
+```
+
+
+
+```{r}
+# Load necessary libraries
+library(ggplot2)
+
+# Scatterplot: Home Run vs Average Swing Speed
+ggplot(batting_data, aes(x = avg_swing_speed, y = home_run)) +
+  geom_point(color = "blue", alpha = 0.7) +
+  labs(
+    title = "Home Runs vs Average Swing Speed",
+    x = "Average Swing Speed",
+    y = "Home Runs"
+  ) +
+  theme_minimal()
+
+
+
+# Scatterplot: K% vs Hard Hit %
+ggplot(batting_data, aes(x = k_percent, y = hard_hit_percent)) +
+  geom_point(color = "red", alpha = 0.7) +
+  labs(
+    title = "Strikeout % vs Hard Hit %",
+    x = "Strikeout %",
+    y = "Hard Hit %"
+  ) +
+  theme_minimal()
+
+
+
+# Scatterplot: K% vs Hard Hit %
+ggplot(batting_data, aes(x = k_percent, y = home_run)) +
+  geom_point(color = "red", alpha = 0.7) +
+  labs(
+    title = "Strikeout % vs Home Runs",
+    x = "Strikeout %",
+    y = "Home Runs"
+  ) +
+  theme_minimal()
+
+
+
+
+# Scatterplot: K% vs Hard Hit %
+ggplot(batting_data, aes(x = avg_swing_speed, y = whiff_percent)) +
+  geom_point(color = "red", alpha = 0.7) +
+  labs(
+    title = "Average Swing Speed vs Whiff %",
+    x = "Average Swing Speed",
+    y = "Whiff %"
+  ) +
+  theme_minimal()
+```
+
+```{r}
+# Load necessary libraries
+library(ggplot2)
+library(reshape2)
+
+# Compute correlation matrix
+correlation_matrix <- batting_data %>%
+  cor(use = "complete.obs")
+
+# Melt correlation matrix into long format
+correlation_melt <- melt(correlation_matrix)
+
+# Plot heatmap
+ggplot(correlation_melt, aes(x = Var1, y = Var2, fill = value)) +
+  geom_tile(color = "white") +
+  scale_fill_gradient2(
+    low = "blue", 
+    high = "red", 
+    mid = "white", 
+    midpoint = 0, 
+    limit = c(-1, 1), 
+    space = "Lab", 
+    name = "Correlation"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
+  labs(
+    title = "Correlation Heatmap",
+    x = "",
+    y = ""
+  )
+```
+
+
+
+
+

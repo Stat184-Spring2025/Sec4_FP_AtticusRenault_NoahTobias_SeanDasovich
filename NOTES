@@ -6,3 +6,11 @@ Research Question:
 Is bat speed correlated to strike out rate?
 Is bat speed correlated to home run rate?
 What combination of whiff % and BB % most influences strikeout %? (ex. high whiff % but high bb %)
+
+VISUALS:
+
+Scatterplot1
+- bat speed vs. strike out rate
+
+Scatterplot2
+- bat speed vs. home runs

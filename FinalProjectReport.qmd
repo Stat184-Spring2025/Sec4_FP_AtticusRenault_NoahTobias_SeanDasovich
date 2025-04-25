@@ -1,9 +1,10 @@
 ---
-title: "Analyzing Factors Influencing Batting Strike Rate and the Role of Batting Style in IPL Players"
+title: "Analyzing the Correlation between Swing Speed, Strikeout %, and Home Runs in Major League Baseball"
 author: 
-  - "Rohan Dalal"
-  - "Pratham Patel"
-date: "December 18, 2024"
+  - "Atticus Renault"
+  - "Noah Tobias"
+  - "Sean Dasovich"
+date: "DUE DATE"
 format: pdf
 number-sections: false
 fig-cap: true
@@ -19,8 +20,8 @@ Cricket is a globally popular bat-and-ball sport played between two teams, where
 
 In this project, we aim to explore two core research questions:
 
-1.  What factors (e.g., runs, boundaries, matches played, balls faced, batting average, and batting style) are most predictive of a batsman's strike rate?
-2.  Does a batsman's batting style (left-hand bat vs. right-hand bat) influence their batting average and boundary-hitting ability?
+1.  What factors (e.g., home runs, whiff %, strikeout %, hard hit %, average launch angle) is bat speed an indicator of for Major League Baseball batters?
+2.  Is a batter's birthplace an indicator of bat speed?
 
 These questions aim to fill gaps in understanding how scoring efficiency connects with playing style and consistency. The insights gained could play a pivotal role in shaping team strategies, player selection, and overall performance improvements. The overarching goal of this project is to provide actionable insights that emphasize the importance of strike rate and related metrics in modern cricket.
 

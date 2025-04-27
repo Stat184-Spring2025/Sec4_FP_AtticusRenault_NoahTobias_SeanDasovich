@@ -1,5 +1,5 @@
 ---
-title: "Analyzing the Correlation between Swing Speed, Strikeout %, and Home Runs in Major League Baseball"
+title: "Analyzing the Correlation between Swing Speed and Related Metrics in Major League Baseball"
 author: 
   - "Atticus Renault"
   - "Noah Tobias"
@@ -15,32 +15,29 @@ execute:
 
 # Introduction
 
-Cricket is a globally popular bat-and-ball sport played between two teams, where the objective is to score runs while preventing the opposing team from doing the same, combining strategy, skill, and athleticism. It is a sport where data analytics plays a crucial role in evaluating player performance and shaping game strategies. Among various performance metrics, the batting strike rate is a standout measure, reflecting a batsman's scoring efficiency as runs scored per 100 balls faced. This metric is particularly vital in shorter formats like T20 cricket, where players often aim for high strike rates to make a decisive impact on the game. However, the strike rate alone does not provide a complete picture of a player’s contribution, as it must be analyzed alongside other metrics like batting average and boundary frequency.
+Tracking statistics has been a core part of baseball since its birth in the 19th century. What began as tabulating hits and runs has evolved into batting averages, on base percentages, and complex measures of a player's "win contribution". The 2011 movie *Moneyball*, based on the Oakland Athletics 2002 season, brought advanced metrics to the public's eye and revealed statistics as a core component to gaining a competitive edge. This hyper-analysis of player performance is commonly referred to today as "sabermetrics". One of the key stats that emerged out of the data revolution was bat speed. The basic principle that "the harder you swing, the farther the ball goes" has become increasingly valuable in the modern game, which emphasizes home runs and big hits. This paper explores the relationship between bat speed and other metrics, assessing its advantages and trade-offs. 
 
-In this project, we aim to explore two core research questions:
+In this project, we explore two core research questions:
 
-1.  What factors (e.g., home runs, whiff %, strikeout %, hard hit %, average launch angle) is bat speed an indicator of for Major League Baseball batters?
+1.  What factors (e.g., home runs, whiff %, strikeout %, hard hit %, average launch angle) is bat speed the best indicator of for Major League Baseball batters?
 2.  Is a batter's birthplace an indicator of bat speed?
 
-These questions aim to fill gaps in understanding how scoring efficiency connects with playing style and consistency. The insights gained could play a pivotal role in shaping team strategies, player selection, and overall performance improvements. The overarching goal of this project is to provide actionable insights that emphasize the importance of strike rate and related metrics in modern cricket.
+These questions aim to understand bat speed's place in baseball today and the role upbringing has in its development in young players. The insights from this data analysis could influence multiple levels of the baseball pipeline. At the scouting stage, knowing how upbringing relates to batter tendencies enhances expectation, and once in the League, bat speed could provide an anchor point for teams to build around.
 
 # Data Provenance
 
-For this project, we used two datasets to explore factors influencing batting strike rate and the role of batting style in IPL players. The datasets were curated from reliable online sources and combined through data wrangling and cleaning processes to produce a final dataset for analysis.
+For this project, we used two datasets. The primary dataset is most helpful in addressing the first research question and sets the foundation for the data analysis. The second dataset provides a new perspective on this topic through a more unconventional lens. The two datasets were combined through data wrangling and cleaning processes to produce a final dataset for analysis.
 
 ## Primary Dataset
 
--   Source: Kaggle
--   Description: The primary dataset contains detailed performance statistics for IPL players from 2008 to 2024, including batting and bowling metrics. It has 604 rows and 16 columns, representing individual player performances across multiple IPL seasons.
--   Purpose: This dataset was originally collected to provide comprehensive insights into player performance, including metrics like batting strike rate, boundaries, boundaries percentage, batting average, balls faced, and matches played.
--   Cases: Each row represents an IPL player, with columns detailing their batting and bowling statistics.
+-   Source: Baseball Savant (https://baseballsavant.mlb.com/)
+-   Description: Baseball Savant, powered by Google Cloud, allows for customized data tables which can then be converted to csv files. We created a custom table that includes all qualified (at least 502 plate appearances) batters from the 2024 regular season. Our custom table includes 19 columns and 129 rows.
+-   Purpose: This dataset was used to gather bat speed and related attributes for MLB batters from the 2024 regular season. The information in this table was useful for determining correlation between bat speed and the other commonly collected baseball statistics (hard hit %, strikeout %, etc.)
+-   Cases: Each row represents an MLB batter, with columns describing various batting statistics.
 
 ## Secondary Dataset
 
--   Source: GitHub
--   Description: The secondary dataset provides metadata about IPL players who played the 2024 season, including their batting style (left-hand or right-hand), bowling style, and other details like playing role and player profile links. It has 262 rows and 13 columns.
--   Purpose: This dataset was collected to offer additional contextual information about players, particularly batting and bowling styles.
--   Cases: Each row represents an IPL player, with columns capturing their roles and playing styles.
+
 
 ## Data Wrangling
 

@@ -31,7 +31,7 @@ For this project, we used two datasets. The primary dataset is most helpful in a
 ## Primary Dataset
 
 -   Source: Baseball Savant (https://baseballsavant.mlb.com/)
--   Description: Baseball Savant, powered by Google Cloud, allows for customized data tables which can then be converted to csv files. We created a custom table that includes all qualified (at least 502 plate appearances) batters from the 2024 regular season. Our custom table includes 19 columns and 129 rows.
+-   Description: Baseball Savant, powered by Statcast MLB, allows for customized data tables which can then be converted to csv files. We created a custom table that includes all qualified (at least 502 plate appearances) batters from the 2024 regular season. Our custom table includes 19 columns and 129 rows.
 -   Purpose: This dataset was used to gather bat speed and related attributes for MLB batters from the 2024 regular season. The information in this table was useful for determining correlation between bat speed and the other commonly collected baseball statistics (hard hit %, strikeout %, etc.)
 -   Cases: Each row represents an MLB batter, with columns describing various batting statistics.
 
@@ -39,61 +39,58 @@ For this project, we used two datasets. The primary dataset is most helpful in a
 
 
 
-## Data Wrangling
+## Merging and Cleaning
 
-To address our research questions, we integrated the primary and secondary datasets into a single, cleaned dataset:
+To be able to answer both research questions, we merged the two data sets and applied some minor cleaning:
 
 ### Merging:
 
--   The datasets were merged using the player column from the primary dataset and the Name column from the secondary dataset.
--   The merge allowed us to combine batting performance metrics with metadata like batting style.
-
-### Variable Selection
-
--   After merging, unnecessary columns such as imgUrl, longName, and other unrelated attributes were dropped.
--   We retained variables directly relevant to our analysis, such as runs, boundaries, balls faced, matches, batting average, batting strike rate, boundaries percentage, and batting style.
+-   The data sets were joined by name.
+-   The merged table combines both the heavily quantitative variables at the heart of the first research question with the categorical variable of birthplace.
 
 ### Filtering and Cleaning
 
--   Players who faced fewer than 100 balls across matches were excluded to ensure that the analysis focused on consistent performers.
--   The final dataset includes only those players who met this threshold, resulting in 92 rows with all required columns.
+-   The bulk of filtering had been done prior to reading the csv into the environment.
+-   The full quantitative variable list: home runs, strikeout %, walk %, batting average, intentional walks, average bat speed, fast swing %, exit velocity, launch angle, barrel %, hard hit %, outside the zone swing %, whiff %, swing %, sprint speed.
+-   The data includes only qualified batters from the 2024 regular season. A hitter is qualified if he makes 3.1 plate appearances per game (~502 in a standard 162 game season).
+-   Some unrelated columns were removed like player_id and year.
 
 ## Final Dataset
 
--   Description: The final dataset is a curated selection of the most relevant variables for our analysis, combining performance statistics with metadata like batting styles. It has 92 rows, the 8 selected variables required to answer the research questions, and the player name.
--   Purpose: This dataset enables us to analyze factors influencing batting strike rate and assess the impact of batting style on performance metrics like boundaries and batting average
--   Case: Each row represents an IPL player, with columns capturing their batting statistics and style.
-
-By merging and cleaning the datasets, we ensured that our final data aligns with our research objectives, is reliable, and is focused solely on relevant attributes. This curated dataset provides the foundation for meaningful insights into IPL player performance.
-
-
+-   Description: The final dataset has a combination of the statistics relevant to determining correlation between bat speed and other quantitative variables as well as the variable of birthplace. Additionally, the data set contains the first and last names of the 129 qualified players.
+-   Purpose: This dataset streamlines the analysis of bat speed by only including statistics that are likely to be influenced by bat speed (with the exception of birthplace, which is more unconventional). 
+-   Case: Each row represents an MLB player, with columns capturing their batting statistics and birthplace.
 
 # FAIR Principles
 
 The datasets used in this project adhere to the FAIR principles, which ensure data integrity and usability in research:
 
-## Findable
+**Add info on secondary source**
 
--   The primary dataset is sourced from Kaggle, a well-known platform for datasets and data challenges, making it easy to locate with clear metadata and descriptions.
--   The secondary dataset is publicly available on GitHub, ensuring that both data sources are easily discoverable.
+## Findable:
+
+-   The primary dataset was constructed using data on Baseball Savant -- a database accessible from any search engine.
+-   The attributes selected are among 50+ stats that can be easily found using Savant's in-site search system.
 
 ## Accessible:
 
--   Both datasets are openly accessible without restrictions, allowing researchers to download and use the data without barriers. Kaggle and GitHub provide reliable hosting platforms with consistent access.
+-   Savant is completely free and contains data on every pitch from 2015 onward (and limited information for other seasons as far back as 2008).
+-   Savant provides the option to download any collected data as a csv file.
 
 ## Interoperable:
 
--   The datasets were formatted in .csv files, a universally accepted format that is compatible with most data analysis tools and programming languages like R and Python.
--   During data wrangling, we standardized column names and formats to ensure smooth integration, making the data interoperable within our analysis.
+-   As mentioned Savant's data can be formatted as a .csv file, a widely accepted format compatible with most programming languages.
+-   Although baseball terminology includes significant jargon, Savant includes a glossary that links to the official MLB.com page describing what each stat measures.
 
 ## Reusable:
 
--   The datasets come with sufficient documentation about their content and purpose, enabling others to use them for similar or extended analyses.
--   By cleaning and curating the final dataset, we improved its usability for future research.
+-   The data is collected from every MLB game and can be "unaggregated" to find specific pitches in specific scenarios.
+-   Each data point comes with detailed attributes (pitch velocity, spin rate, etc.) and accompanying metadata.
+-   Our final dataset was cleaned in a way so that it can be easily reused for a similar research project.
 
 # CARE Principles
 
-Although our data doesn’t include sensitive or community-specific information, we prioritized ethical standards throughout the project. The datasets we used are publicly available, and our analysis was conducted with a focus on fairness and collective benefit. No private information was accessed, and we ensured that all interpretations remained unbiased and responsible.
+The data does not include sensitive information, yet we recognize the ethical considerations that arise when working with location data (player birthplaces). The relations made between location and other attributes are performed in a way to not disparage a player's background. Instead, these connections serve to prove the utility of global perspectives in data analysis. All data can be found publicly, and we strove to remove interpretation from biased reasoning.
 
 # Exploratory Data Analysis (EDA)
 

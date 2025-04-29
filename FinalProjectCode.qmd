@@ -129,6 +129,8 @@ ggplot(batting_data, aes(x = avg_swing_speed, y = home_run)) +
     y = "Home Runs"
   ) +
   theme_minimal()
+ggsave("plots/swing_vs_hr.png", width = 7, height = 5)
+
 ```
 
 

@@ -17,16 +17,17 @@ execute:
 
 Tracking statistics has been a core part of baseball since its birth in the 19th century. What began as tabulating hits and runs has evolved into batting averages, on base percentages, and complex measures of a player's "win contribution". The 2011 movie *Moneyball*, based on the Oakland Athletics 2002 season, brought advanced metrics to the public's eye and revealed statistics as a core component to gaining a competitive edge. This hyper-analysis of player performance is commonly referred to today as "sabermetrics". One of the key stats that emerged out of the data revolution was bat speed. The basic principle that "the harder you swing, the farther the ball goes" has become increasingly valuable in the modern game, which emphasizes home runs and big hits. This paper explores the relationship between bat speed and other metrics, assessing its advantages and trade-offs. 
 
-In this project, we explore two core research questions:
+In this project, we explore three core research questions:
 
 1.  What factors (e.g., home runs, whiff %, strikeout %, hard hit %, average launch angle) is bat speed the best indicator of for Major League Baseball batters?
-2.  Is a batter's birthplace an indicator of bat speed?
+2.  Does a batter's position affect his batting performance?
+3. Does the league a batter plays in affect his batting performance?
 
-These questions aim to understand bat speed's place in baseball today and the role upbringing has in its development in young players. The insights from this data analysis could influence multiple levels of the baseball pipeline. At the scouting stage, knowing how upbringing relates to batter tendencies enhances expectation, and once in the League, bat speed could provide an anchor point for teams to build around.
+These questions aim to understand bat speed's place in baseball today and the role of external factors in affecting a batter's approach/training. The insights from this data analysis could influence multiple levels of the baseball pipeline. At the training stage, these results may reveal how valuable bat speed is as a trainable skill. When thinking about position, these findings could result in further discussion about balancing defensive and offensive proficiency. At a structural level, our analysis can be used in determining if the National and American leagues value different attributes in a player.
 
 # Data Provenance
 
-For this project, we used two datasets. The primary dataset is most helpful in addressing the first research question and sets the foundation for the data analysis. The second dataset provides a new perspective on this topic through a more unconventional lens. The two datasets were combined through data wrangling and cleaning processes to produce a final dataset for analysis.
+For this project, we used two datasets. The primary dataset is most helpful in addressing the first research question and sets the foundation for the data analysis. The second dataset provides a new perspective on this topic through a categorical lens. The two datasets were combined through data wrangling and cleaning processes to produce a final dataset for analysis.
 
 ## Primary Dataset
 
@@ -37,29 +38,108 @@ For this project, we used two datasets. The primary dataset is most helpful in a
 
 ## Secondary Dataset
 
-
+-   Source: Baseball Reference (https://www.baseball-reference.com/)
+-   Description: Baseball Reference is part of an independent encyclopedia of sports statistics. It provides a lot of the same information as Baseball Savant but is better for finding individual player information. Baseball Reference also has tables of aggregate season data from which we could find batters' league (American or National) and position (infield, outfield, neither, both). The original table for 2024 has 34 columns and 741 rows.
+-   Purpose: This dataset was used to collect the league designation (AL or NL) and position for each MLB player in the 2024 regular season. This information is used to group players in data visualizations by common characteristics.
+-   Cases: Each row represents an MLB player, not necessarily batter, who made an appearance in 2024 with the columns describing various batting statistics.
 
 ## Merging and Cleaning
 
 To be able to answer both research questions, we merged the two data sets and applied some minor cleaning:
 
-### Merging:
-
--   The data sets were joined by name.
--   The merged table combines both the heavily quantitative variables at the heart of the first research question with the categorical variable of birthplace.
-
 ### Filtering and Cleaning
 
--   The bulk of filtering had been done prior to reading the csv into the environment.
+-   For the Savant dataset, the bulk of filtering and cleaning had been done prior to reading the csv into the environment. The only adjustment was splitting first name and last name.
 -   The full quantitative variable list: home runs, strikeout %, walk %, batting average, intentional walks, average bat speed, fast swing %, exit velocity, launch angle, barrel %, hard hit %, outside the zone swing %, whiff %, swing %, sprint speed.
 -   The data includes only qualified batters from the 2024 regular season. A hitter is qualified if he makes 3.1 plate appearances per game (~502 in a standard 162 game season).
 -   Some unrelated columns were removed like player_id and year.
 
+-   For the Reference dataset, extra characters were cleaned out of the players' names.
+-   Every column was removed except those indicating name, league, and position.
+-   Every player, regardless of position, who made a game appearance appears in the dataset.
+
+### Merging:
+
+-   The data sets were joined by the player's name.
+-   The merged table combines both the heavily quantitative variables at the heart of the first research question with the categorical variables of league and position.
+-   After merging, only qualified batters remain.
+-   The position attribute was originally in terms of traditional baseball scoring conventions where each position is attributed a number 1 through 9 (except for a designated hitter). This was adjusted to give broader descriptions of "Infield", "Outfield" or "Neither".
+
 ## Final Dataset
 
--   Description: The final dataset has a combination of the statistics relevant to determining correlation between bat speed and other quantitative variables as well as the variable of birthplace. Additionally, the data set contains the first and last names of the 129 qualified players.
--   Purpose: This dataset streamlines the analysis of bat speed by only including statistics that are likely to be influenced by bat speed (with the exception of birthplace, which is more unconventional). 
--   Case: Each row represents an MLB player, with columns capturing their batting statistics and birthplace.
+-   Description: The final dataset has a combination of the statistics relevant to determining correlation between bat speed and other quantitative variables as well as the variables of league and position. Additionally, the data set contains the first and last names of the 129 qualified players.
+-   Purpose: This dataset streamlines the analysis of bat speed by only including statistics that are likely to be influenced by bat speed. 
+-   Case: Each row represents an MLB player, with columns capturing their batting statistics, league, and position.
+
+```{r}
+## Load Necessary Packages
+library(tidyverse)
+library(dplyr)
+library(knitr)
+library(kableExtra)
+library(reshape2)
+library(ggplot2)
+
+# Step 1: Read original data CSV without column names
+mlb_data_raw <- read_csv("https://raw.githubusercontent.com/nwt5144/FinalProjectStat184/refs/heads/main/stats.csv", show_col_types = FALSE)
+
+# Select columns of interest
+batting_data <- mlb_data_raw %>%
+  select(
+    'last_name, first_name',
+    home_run, 
+    walk, 
+    k_percent, 
+    b_intent_walk, 
+    avg_swing_speed, 
+    launch_angle_avg,
+    hard_hit_percent,
+    whiff_percent
+  )
+
+# Prepare batting_data for merging
+batting_data_for_combo <- batting_data %>%
+  separate(`last_name, first_name`, into = c("LastName", "FirstName"), sep = ", ", remove = FALSE) %>%
+  select(-`last_name, first_name`) %>%
+  mutate(
+    Player = paste(FirstName, LastName),
+    Player = str_trim(Player)
+  )
+
+# Read roster data
+roster_data <- read_csv("https://raw.githubusercontent.com/nwt5144/FinalProjectStat184/refs/heads/main/NlAlPos.csv")
+
+# Clean roster_data
+roster_data <- roster_data %>%
+  mutate(
+    Player = str_replace(Player, "\\*", ""), 
+    Player = str_trim(Player)
+  )
+
+# Keep only necessary columns
+roster_data_small <- roster_data %>%
+  select(Player, Lg, Pos)
+
+# Merge on Player
+combined_data <- batting_data_for_combo %>%
+  left_join(roster_data_small, by = "Player")
+
+# Clean and group Pos
+combined_data <- combined_data %>%
+  mutate(
+    Pos = str_replace_all(Pos, "\\*", ""),
+    Pos = str_extract(Pos, "\\d"),
+    Pos = case_when(
+      Pos == "1" ~ "Pitcher",
+      Pos %in% c("2", "3", "4", "5", "6") ~ "Infielder",
+      Pos %in% c("7", "8", "9") ~ "Outfielder",
+      TRUE ~ NA_character_
+    )
+  )
+
+head(combined_data)
+
+```
 
 # FAIR Principles
 
@@ -69,18 +149,26 @@ The datasets used in this project adhere to the FAIR principles, which ensure da
 
 ## Findable:
 
--   The primary dataset was constructed using data on Baseball Savant -- a database accessible from any search engine.
+-   The primary dataset was constructed using data on Baseball Savant -- a database accessible from most search engines.
 -   The attributes selected are among 50+ stats that can be easily found using Savant's in-site search system.
+
+-   The secondary dataset was constructed using data on Baseball Reference -- a database accessible from most search engines.
+-   The data table was found using navigation tabs on the site.
 
 ## Accessible:
 
 -   Savant is completely free and contains data on every pitch from 2015 onward (and limited information for other seasons as far back as 2008).
 -   Savant provides the option to download any collected data as a csv file.
 
+-   While Baseball Reference does have a paid version, the information needed for this analysis was free.
+-   Reference allows its tables to be downloaded as a csv file.
+
 ## Interoperable:
 
 -   As mentioned Savant's data can be formatted as a .csv file, a widely accepted format compatible with most programming languages.
 -   Although baseball terminology includes significant jargon, Savant includes a glossary that links to the official MLB.com page describing what each stat measures.
+
+-   Baseball Reference also has a glossary for the terminology used in its tables.
 
 ## Reusable:
 
@@ -90,24 +178,22 @@ The datasets used in this project adhere to the FAIR principles, which ensure da
 
 # CARE Principles
 
-The data does not include sensitive information, yet we recognize the ethical considerations that arise when working with location data (player birthplaces). The relations made between location and other attributes are performed in a way to not disparage a player's background. Instead, these connections serve to prove the utility of global perspectives in data analysis. All data can be found publicly, and we strove to remove interpretation from biased reasoning.
+The data does not include sensitive information, yet we recognize the ethical considerations that arise when evaluating player performance. The key insights drawn from the data are not meant to disparage any one particular player but inform overall trends by players with common or uncommon characteristics. All data can be found publicly, and we strove to remove our interpretation from biased reasoning.
 
 # Exploratory Data Analysis (EDA)
 
-To derive meaningful insights from our data and address the research questions, we conducted extensive Exploratory Data Analysis (EDA). This included generating summary tables and creating various visualizations to better understand relationships between key variables and uncover patterns in player performance.
+Our exploratory data analysis includes a summary table with descriptive statistics for the population of interest (qualified MLB batters). Additionally, we created various other data visualizations to examine relationships between relevant statistics. These tables and visualizations were used to draw conclusions regarding trends in player performance.
 
 We started by constructing summary tables to provide an overview of key statistics such as runs, boundaries, batting average, strike rate, and more. These tables allowed us to compare metrics across players and batting styles, highlighting trends and differences in performance.
 
 Next, we developed data visualizations to explore deeper relationships and distributions within the dataset:
 
 -   Scatter plots: These helped us visualize how variables like runs, boundaries, balls faced, matches, batting average, batting strike rate, and boundaries percentage relate to batting strike rate, with batting styles distinguished by color.
--   Box plots: These illustrated the distribution of metrics like batting strike rate, batting average and boundaries across different batting styles.
 -   Correlation heatmap: This highlighted the strength of relationships between batting strike rate and other performance metrics.
--   Histograms: These revealed the overall distribution of batting strike rates across players.
 
 The insights gained from these analyses form the foundation of our results and conclusions. Below, we detail the most critical tables and visualizations, along with the key insights they helped us derive.
 
-## Descriptive Statistics of Batting Metrics
+## Batting Metrics Summary Table
 
 This table (Table 1) provides an overview of the dataset's key batting performance metrics, including runs, boundaries, boundaries_percent, balls_faced, matches, batting_avg, and strike_rate. The summary statistics (mean, median, minimum, and maximum) offer valuable context about the range and distribution of these variables.
 

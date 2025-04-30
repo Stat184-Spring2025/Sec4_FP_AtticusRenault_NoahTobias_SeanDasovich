@@ -149,7 +149,7 @@ ggplot(batting_data, aes(x = k_percent, y = hard_hit_percent)) +
 ```
 
 
-# Scatterplot: K% vs Hard Hit %
+# Scatterplot: K% vs Home Run %
 
 ```{r}
 # Scatterplot: K% vs Hard Hit %
@@ -164,7 +164,7 @@ ggplot(batting_data, aes(x = k_percent, y = home_run)) +
 ```
 
 
-# Scatterplot: K% vs Hard Hit %
+# Scatterplot: Average Swing Speed vs Whiff Percentage %
 
 
 ```{r}

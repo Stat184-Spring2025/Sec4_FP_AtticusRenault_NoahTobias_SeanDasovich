@@ -17,16 +17,17 @@ execute:
 
 Tracking statistics has been a core part of baseball since its birth in the 19th century. What began as tabulating hits and runs has evolved into batting averages, on base percentages, and complex measures of a player's "win contribution". The 2011 movie *Moneyball*, based on the Oakland Athletics 2002 season, brought advanced metrics to the public's eye and revealed statistics as a core component to gaining a competitive edge. This hyper-analysis of player performance is commonly referred to today as "sabermetrics". One of the key stats that emerged out of the data revolution was bat speed. The basic principle that "the harder you swing, the farther the ball goes" has become increasingly valuable in the modern game, which emphasizes home runs and big hits. This paper explores the relationship between bat speed and other metrics, assessing its advantages and trade-offs. 
 
-In this project, we explore two core research questions:
+In this project, we explore three core research questions:
 
 1.  What factors (e.g., home runs, whiff %, strikeout %, hard hit %, average launch angle) is bat speed the best indicator of for Major League Baseball batters?
-2.  Is a batter's birthplace an indicator of bat speed?
+2.  Does a batter's position affect his batting performance?
+3. Does the league a batter plays in affect his batting performance?
 
-These questions aim to understand bat speed's place in baseball today and the role upbringing has in its development in young players. The insights from this data analysis could influence multiple levels of the baseball pipeline. At the scouting stage, knowing how upbringing relates to batter tendencies enhances expectation, and once in the League, bat speed could provide an anchor point for teams to build around.
+These questions aim to understand bat speed's place in baseball today and the role of external factors in affecting a batter's approach/training. The insights from this data analysis could influence multiple levels of the baseball pipeline. At the training stage, these results may reveal how valuable bat speed is as a trainable skill. When thinking about position, these findings could result in further discussion about balancing defensive and offensive proficiency. At a structural level, our analysis can be used in determining if the National and American leagues value different attributes in a player.
 
 # Data Provenance
 
-For this project, we used two datasets. The primary dataset is most helpful in addressing the first research question and sets the foundation for the data analysis. The second dataset provides a new perspective on this topic through a more unconventional lens. The two datasets were combined through data wrangling and cleaning processes to produce a final dataset for analysis.
+For this project, we used two datasets. The primary dataset is most helpful in addressing the first research question and sets the foundation for the data analysis. The second dataset provides a new perspective on this topic through a categorical lens. The two datasets were combined through data wrangling and cleaning processes to produce a final dataset for analysis.
 
 ## Primary Dataset
 
@@ -37,29 +38,108 @@ For this project, we used two datasets. The primary dataset is most helpful in a
 
 ## Secondary Dataset
 
-
+-   Source: Baseball Reference (https://www.baseball-reference.com/)
+-   Description: Baseball Reference is part of an independent encyclopedia of sports statistics. It provides a lot of the same information as Baseball Savant but is better for finding individual player information. Baseball Reference also has tables of aggregate season data from which we could find batters' league (American or National) and position (infield, outfield, neither, both). The original table for 2024 has 34 columns and 741 rows.
+-   Purpose: This dataset was used to collect the league designation (AL or NL) and position for each MLB player in the 2024 regular season. This information is used to group players in data visualizations by common characteristics.
+-   Cases: Each row represents an MLB player, not necessarily batter, who made an appearance in 2024 with the columns describing various batting statistics.
 
 ## Merging and Cleaning
 
 To be able to answer both research questions, we merged the two data sets and applied some minor cleaning:
 
-### Merging:
-
--   The data sets were joined by name.
--   The merged table combines both the heavily quantitative variables at the heart of the first research question with the categorical variable of birthplace.
-
 ### Filtering and Cleaning
 
--   The bulk of filtering had been done prior to reading the csv into the environment.
+-   For the Savant dataset, the bulk of filtering and cleaning had been done prior to reading the csv into the environment. The only adjustment was splitting first name and last name.
 -   The full quantitative variable list: home runs, strikeout %, walk %, batting average, intentional walks, average bat speed, fast swing %, exit velocity, launch angle, barrel %, hard hit %, outside the zone swing %, whiff %, swing %, sprint speed.
 -   The data includes only qualified batters from the 2024 regular season. A hitter is qualified if he makes 3.1 plate appearances per game (~502 in a standard 162 game season).
 -   Some unrelated columns were removed like player_id and year.
 
+-   For the Reference dataset, extra characters were cleaned out of the players' names.
+-   Every column was removed except those indicating name, league, and position.
+-   Every player, regardless of position, who made a game appearance appears in the dataset.
+
+### Merging:
+
+-   The data sets were joined by the player's name.
+-   The merged table combines both the heavily quantitative variables at the heart of the first research question with the categorical variables of league and position.
+-   After merging, only qualified batters remain.
+-   The position attribute was originally in terms of traditional baseball scoring conventions where each position is attributed a number 1 through 9 (except for a designated hitter). This was adjusted to give broader descriptions of "Infield", "Outfield" or "Neither".
+
 ## Final Dataset
 
--   Description: The final dataset has a combination of the statistics relevant to determining correlation between bat speed and other quantitative variables as well as the variable of birthplace. Additionally, the data set contains the first and last names of the 129 qualified players.
--   Purpose: This dataset streamlines the analysis of bat speed by only including statistics that are likely to be influenced by bat speed (with the exception of birthplace, which is more unconventional). 
--   Case: Each row represents an MLB player, with columns capturing their batting statistics and birthplace.
+-   Description: The final dataset has a combination of the statistics relevant to determining correlation between bat speed and other quantitative variables as well as the variables of league and position. Additionally, the data set contains the first and last names of the 129 qualified players.
+-   Purpose: This dataset streamlines the analysis of bat speed by only including statistics that are likely to be influenced by bat speed. 
+-   Case: Each row represents an MLB player, with columns capturing their batting statistics, league, and position.
+
+```{r}
+## Load Necessary Packages
+library(tidyverse)
+library(dplyr)
+library(knitr)
+library(kableExtra)
+library(reshape2)
+library(ggplot2)
+
+# Step 1: Read original data CSV without column names
+mlb_data_raw <- read_csv("https://raw.githubusercontent.com/nwt5144/FinalProjectStat184/refs/heads/main/stats.csv", show_col_types = FALSE)
+
+# Select columns of interest
+batting_data <- mlb_data_raw %>%
+  select(
+    'last_name, first_name',
+    home_run, 
+    walk, 
+    k_percent, 
+    b_intent_walk, 
+    avg_swing_speed, 
+    launch_angle_avg,
+    hard_hit_percent,
+    whiff_percent
+  )
+
+# Prepare batting_data for merging
+batting_data_for_combo <- batting_data %>%
+  separate(`last_name, first_name`, into = c("LastName", "FirstName"), sep = ", ", remove = FALSE) %>%
+  select(-`last_name, first_name`) %>%
+  mutate(
+    Player = paste(FirstName, LastName),
+    Player = str_trim(Player)
+  )
+
+# Read roster data
+roster_data <- read_csv("https://raw.githubusercontent.com/nwt5144/FinalProjectStat184/refs/heads/main/NlAlPos.csv")
+
+# Clean roster_data
+roster_data <- roster_data %>%
+  mutate(
+    Player = str_replace(Player, "\\*", ""), 
+    Player = str_trim(Player)
+  )
+
+# Keep only necessary columns
+roster_data_small <- roster_data %>%
+  select(Player, Lg, Pos)
+
+# Merge on Player
+combined_data <- batting_data_for_combo %>%
+  left_join(roster_data_small, by = "Player")
+
+# Clean and group Pos
+combined_data <- combined_data %>%
+  mutate(
+    Pos = str_replace_all(Pos, "\\*", ""),
+    Pos = str_extract(Pos, "\\d"),
+    Pos = case_when(
+      Pos == "1" ~ "Pitcher",
+      Pos %in% c("2", "3", "4", "5", "6") ~ "Infielder",
+      Pos %in% c("7", "8", "9") ~ "Outfielder",
+      TRUE ~ NA_character_
+    )
+  )
+
+head(combined_data)
+
+```
 
 # FAIR Principles
 
@@ -69,18 +149,26 @@ The datasets used in this project adhere to the FAIR principles, which ensure da
 
 ## Findable:
 
--   The primary dataset was constructed using data on Baseball Savant -- a database accessible from any search engine.
+-   The primary dataset was constructed using data on Baseball Savant -- a database accessible from most search engines.
 -   The attributes selected are among 50+ stats that can be easily found using Savant's in-site search system.
+
+-   The secondary dataset was constructed using data on Baseball Reference -- a database accessible from most search engines.
+-   The data table was found using navigation tabs on the site.
 
 ## Accessible:
 
 -   Savant is completely free and contains data on every pitch from 2015 onward (and limited information for other seasons as far back as 2008).
 -   Savant provides the option to download any collected data as a csv file.
 
+-   While Baseball Reference does have a paid version, the information needed for this analysis was free.
+-   Reference allows its tables to be downloaded as a csv file.
+
 ## Interoperable:
 
 -   As mentioned Savant's data can be formatted as a .csv file, a widely accepted format compatible with most programming languages.
 -   Although baseball terminology includes significant jargon, Savant includes a glossary that links to the official MLB.com page describing what each stat measures.
+
+-   Baseball Reference also has a glossary for the terminology used in its tables.
 
 ## Reusable:
 
@@ -90,129 +178,300 @@ The datasets used in this project adhere to the FAIR principles, which ensure da
 
 # CARE Principles
 
-The data does not include sensitive information, yet we recognize the ethical considerations that arise when working with location data (player birthplaces). The relations made between location and other attributes are performed in a way to not disparage a player's background. Instead, these connections serve to prove the utility of global perspectives in data analysis. All data can be found publicly, and we strove to remove interpretation from biased reasoning.
+The data does not include sensitive information, yet we recognize the ethical considerations that arise when evaluating player performance. The key insights drawn from the data are not meant to disparage any one particular player but inform overall trends by players with common or uncommon characteristics. All data can be found publicly, and we strove to remove our interpretation from biased reasoning.
 
 # Exploratory Data Analysis (EDA)
 
-To derive meaningful insights from our data and address the research questions, we conducted extensive Exploratory Data Analysis (EDA). This included generating summary tables and creating various visualizations to better understand relationships between key variables and uncover patterns in player performance.
+Our exploratory data analysis includes a summary table with descriptive statistics for the population of interest (qualified MLB batters). Additionally, we created various other data visualizations to examine relationships between relevant statistics. These tables and visualizations were used to draw conclusions regarding trends in player performance.
 
 We started by constructing summary tables to provide an overview of key statistics such as runs, boundaries, batting average, strike rate, and more. These tables allowed us to compare metrics across players and batting styles, highlighting trends and differences in performance.
 
 Next, we developed data visualizations to explore deeper relationships and distributions within the dataset:
 
 -   Scatter plots: These helped us visualize how variables like runs, boundaries, balls faced, matches, batting average, batting strike rate, and boundaries percentage relate to batting strike rate, with batting styles distinguished by color.
--   Box plots: These illustrated the distribution of metrics like batting strike rate, batting average and boundaries across different batting styles.
 -   Correlation heatmap: This highlighted the strength of relationships between batting strike rate and other performance metrics.
--   Histograms: These revealed the overall distribution of batting strike rates across players.
 
 The insights gained from these analyses form the foundation of our results and conclusions. Below, we detail the most critical tables and visualizations, along with the key insights they helped us derive.
 
-## Descriptive Statistics of Batting Metrics
+## Batting Metrics Summary Table
 
-This table (Table 1) provides an overview of the dataset's key batting performance metrics, including runs, boundaries, boundaries_percent, balls_faced, matches, batting_avg, and strike_rate. The summary statistics (mean, median, minimum, and maximum) offer valuable context about the range and distribution of these variables.
+@battingStatsSummary provides a baseline for the level we can expect from these MLB players. While these summary statistics alone are not particularly enlightening, they set the background for future comparison. 
 
+```{r}
+#| label: tbl1-battingStatsSummary
 
+# Calculate summary statistics
+summary_table <- batting_data %>%
+  reframe(
+    Variable = c(
+      "home_run", 
+      "walk", 
+      "k_percent", 
+      "b_intent_walk", 
+      "avg_swing_speed", 
+      "launch_angle_avg",
+      "hard_hit_percent",
+      "whiff_percent"
+    ),
+    Mean = c(
+      mean(home_run, na.rm = TRUE), 
+      mean(walk, na.rm = TRUE), 
+      mean(k_percent, na.rm = TRUE), 
+      mean(b_intent_walk, na.rm = TRUE), 
+      mean(avg_swing_speed, na.rm = TRUE), 
+      mean(launch_angle_avg, na.rm = TRUE),
+      mean(hard_hit_percent, na.rm = TRUE), 
+      mean(whiff_percent, na.rm = TRUE)
+    ),    
+    Median = c(
+      median(home_run, na.rm = TRUE), 
+      median(walk, na.rm = TRUE), 
+      median(k_percent, na.rm = TRUE), 
+      median(b_intent_walk, na.rm = TRUE), 
+      median(avg_swing_speed, na.rm = TRUE), 
+      median(launch_angle_avg, na.rm = TRUE),
+      median(hard_hit_percent, na.rm = TRUE), 
+      median(whiff_percent, na.rm = TRUE)
+    ),
+    Minimum = c(
+      min(home_run, na.rm = TRUE), 
+      min(walk, na.rm = TRUE), 
+      min(k_percent, na.rm = TRUE), 
+      min(b_intent_walk, na.rm = TRUE), 
+      min(avg_swing_speed, na.rm = TRUE), 
+      min(launch_angle_avg, na.rm = TRUE),
+      min(hard_hit_percent, na.rm = TRUE), 
+      min(whiff_percent, na.rm = TRUE)
+    ),
+    Maximum = c(
+      max(home_run, na.rm = TRUE), 
+      max(walk, na.rm = TRUE), 
+      max(k_percent, na.rm = TRUE), 
+      max(b_intent_walk, na.rm = TRUE), 
+      max(avg_swing_speed, na.rm = TRUE), 
+      max(launch_angle_avg, na.rm = TRUE),
+      max(hard_hit_percent, na.rm = TRUE), 
+      max(whiff_percent, na.rm = TRUE)
+    )
+  )
+
+# Display Summary Statistics Table ----
+summary_table %>%
+  kable(
+    caption = "Summary Statistics for Key Batting Variables", 
+    digits = 2, 
+    align = c("l", rep("c", 4))
+  ) %>%
+  kable_styling(
+    bootstrap_options = c("striped", "hover", "condensed"), 
+    full_width = FALSE, 
+    font_size = 14
+  ) %>%
+  row_spec(0, bold = TRUE)  # Bold header row
+```
 
 Key Insights:
 
--   The mean batting strike rate is 125.96, with values ranging from 80.77 to 168.23, highlighting variation in scoring efficiency among players.
--   On average, players faced 1,029 balls, scored 1,327 runs, and hit 170 boundaries, demonstrating the general scale of performance in the dataset.
+-   In general, the mean is close to the median, which indicates that there are not significant skews in either direction.
+-   Over the course of a season, the average player -- playing most regular season games -- hits about 22 home runs and walks about 57 times (3 of which are intentional). 
+-   That same player has an average bat speed of 72 mph, launching the ball around 14 degrees (above the plane parallel to the ground) and missing the ball 24% of the time. 
+-   When making contact, that player can expect a hard hit ball (exit velocity of 95 mph) about 42% of the time.
 
-This table establishes a foundational understanding of the dataset and help us explore relationships further in the context of our analysis.
+The table presents solid ground to build our future analyses off of.
 
-## Factors Influencing Batting Strike Rate
+## Factors Influenced by Average Bat Speed and Hard Hit %
 
-### Correlation Between Strike Rate and Other Metrics
+### Correlation Between Batting Metrics
 
-This correlation heatmap (Figure 1) illustrates the relationships between batting_strike_rate and key batting metrics such as runs, boundaries, boundaries_percent, matches, balls_faced, and batting_avg. The heatmap helps identify the variables that have the strongest influence on batting strike rate
+@correlationHeatmap shows the relative strength of how each batting statistics influences every other statistic. The diagonal will be perfect correlation, and the matrix as a whole is symmetric since metrics are mirrored on either axis. Note that there are no negative correlations between metrics.
 
+```{r}
+#| label: fig1-correlationHeatmap
 
+# Compute correlation matrix after removing Player name columns
+correlation_matrix <- batting_data %>%
+  select(-`last_name, first_name`) %>%  # drop non-numeric columns
+  cor(use = "complete.obs")
+
+# Melt correlation matrix into long format
+correlation_melt <- melt(correlation_matrix)
+
+# Plot heatmap
+ggplot(correlation_melt, aes(x = Var1, y = Var2, fill = value)) +
+  geom_tile(color = "white") +
+  scale_fill_gradient2(
+    low = "blue", 
+    high = "red", 
+    mid = "white", 
+    midpoint = 0, 
+    limit = c(-1, 1), 
+    space = "Lab", 
+    name = "Correlation"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
+  labs(
+    title = "Correlation Heatmap",
+    x = "",
+    y = ""
+  )
+
+```
 
 Key Insights:
 
--   Boundaries_Percent shows the strongest positive correlation with batting_strike_rate, indicating that players who score a higher percentage of their runs through boundaries tend to have higher strike rates. In shorter formats like T20 cricket, where aggressive scoring is crucial, this finding emphasizes the importance of boundary-hitting ability as a primary driver of strike rate. It suggests that players focusing on hitting fours and sixes can significantly impact their teams' scoring pace.
--   Batting_Avg also demonstrates a moderate positive correlation, suggesting that consistent scorers (players with higher batting averages) are more likely to have higher strike rates.
--   Other metrics, such as balls_faced and matches, show minimal or no significant correlation with batting_strike_rate. This implies that these variables, while important for contextualizing a player's career or role in a team, are less critical when analyzing scoring efficiency. For example, players who face more balls or play more matches do not necessarily have higher strike rates, highlighting the limited predictive value of these metrics for scoring efficiency.
+
 
 The heatmap lays the ground for deeper analysis of boundaries_percent and batting_avg, which are explored further in the scatter plots.
 
-### Scatter Plots
+### Scatter Plots (Without Categories)
 
-The following scatter plot (Figure 2) shows the relationship between batting_strike_rate and boundaries_percent, with color-coded points representing batting styles (left-hand bat vs. right-hand bat). A loess curve has been added to identify trends.
+@homeRunVsAvgSwingSpeed
 
+```{r}
+#| label: fig2-homeRunVsAvgSwingSpeed
 
+# Scatterplot: Home Run vs Average Swing Speed
+ggplot(batting_data, aes(x = avg_swing_speed, y = home_run)) +
+  geom_point(color = "blue", alpha = 0.7) +
+  labs(
+    title = "Home Runs vs Average Swing Speed",
+    x = "Average Swing Speed",
+    y = "Home Runs"
+  ) +
+  theme_minimal()
+ggsave("plots/swing_vs_hr.png", width = 7, height = 5)
+
+```
 
 Key Insights:
 
--   A strong positive relationship is evident between boundaries_percent and batting_strike_rate. Players with higher percentages of runs from boundaries consistently achieve higher strike rates.
--   The relationship holds true across both batting styles, as evidenced by the overlapping trend line. However, the distribution of players shows some variation, with right-handed batsmen slightly more prevalent at higher boundaries_percent values.
--   This showcases the insight that focusing on aggressive scoring through boundaries is a key factor in driving high strike rates, regardless of batting style, making it an essential strategy for impactful performances in modern cricket.
 
-The scatter plot (Figure 3) examines the relationship between batting_strike_rate and batting_avg, again differentiating batting styles.
+@kVsHardHit
 
+```{r}
+#| label: fig3-kVsHardHit
 
+# Scatterplot: K% vs Hard Hit %
+ggplot(batting_data, aes(x = k_percent, y = hard_hit_percent)) +
+  geom_point(color = "red", alpha = 0.7) +
+  labs(
+    title = "Strikeout % vs Hard Hit %",
+    x = "Strikeout %",
+    y = "Hard Hit %"
+  ) +
+  theme_minimal()
+```
 
 Key Insights:
 
--   A moderate positive relationship is visible between batting_avg and batting_strike_rate. Players with higher averages tend to maintain higher strike rates, though the trend is less pronounced than with boundaries_percent.
--   The loess curve reveals a slightly nonlinear relationship, with strike rates stabilizing at higher batting averages.
--   This suggests that while batting consistency contributes to scoring efficiency, it is not as impactful as boundary-hitting.
 
-Together, these visualizations highlight the significance of boundaries_percent and batting_avg in determining a player's batting strike rate, aligning with the findings from the correlation heatmap.
+@kVsHomeRuns
+
+```{r}
+#| label: fig4-kVsHomeRuns
+
+# Scatterplot: K% vs Home Runs
+ggplot(batting_data, aes(x = k_percent, y = home_run)) +
+  geom_point(color = "red", alpha = 0.7) +
+  labs(
+    title = "Strikeout % vs Home Runs",
+    x = "Strikeout %",
+    y = "Home Runs"
+  ) +
+  theme_minimal()
+```
+
+Key Insights:
+
+
+@SwingSpeedVsWhiff
+
+```{r}
+#| label: fig5-SwingSpeedVsWhiff
+
+# Scatterplot: Swing Speed vs Whiff %
+ggplot(batting_data, aes(x = avg_swing_speed, y = whiff_percent)) +
+  geom_point(color = "red", alpha = 0.7) +
+  labs(
+    title = "Average Swing Speed vs Whiff %",
+    x = "Average Swing Speed",
+    y = "Whiff %"
+  ) +
+  theme_minimal()
+```
+
+Key Insights:
+
 
 ## Influence of Batting Style on Batting Metrics
 
-### Batting Style Comparison
+### Scatter Plots (With Categories)
 
-This table (Table 2) compares key batting metrics between left-handed and right-handed batsmen. The metrics include average runs scored, boundaries hit, batting average, and strike rate.
+@homeRunsVsWalksLeague
 
+```{r}
+#| label: fig6-homeRunsVsWalksLeague
 
-
-Key Insights:
-
--   Right-handed batsmen outperform left-handed batsmen across all metrics, with a higher average of runs (1,423.18 vs. 1,171.54), boundaries (180.77 vs. 153.14), and strike rate (126.79 vs. 124.62). These differences suggest that right-handed batsmen may have an edge in aggressive and impactful scoring.
--   Left-handed batsmen show a slightly better batting average (18.04 vs. 17.94) compared to right-handed batsmen, indicating marginally higher consistency in run-scoring. However, the difference is minimal, suggesting that batting average is not significantly influenced by batting style.
--   Implications: While the differences in metrics are not drastic, they suggest that batting style does have an influence on certain performance metrics, particularly on the ability to score boundaries and maintain a high strike rate. This supports the notion that batting style could be a factor in performance evaluation, especially in shorter cricket formats.
-
-These findings set the stage for the upcoming visualisations, which delve deeper into the relationship between batting style and boundary-hitting ability, as well as total boundaries scored.
-
-### Box Plots
-
-This box plot (Figure 4) illustrates the distribution of boundaries hit by left-handed and right-handed batsmen. It provides a clear comparison of the performance between the two batting styles.
-
-
+# Scatterplot: Home Runs vs Walks by League
+ggplot(combined_data, aes(x = walk, y = home_run, color = Lg)) +
+  geom_point(alpha = 0.7, size = 3) +
+  labs(
+    title = "Home Runs vs Walks by League",
+    x = "Walks",
+    y = "Home Runs"
+  ) +
+  theme_minimal()
+```
 
 Key Insights:
 
--   Building on the findings of Table 2, right-handed batsmen have a significantly wider range in the number of boundaries hit, with a higher median and greater maximum values compared to left-handed batsmen.
--   Left-handed batsmen, while consistent, show a smaller range and lower overall performance in boundary hitting.
--   This suggests that batting style plays a role in boundary-hitting ability, with right-handed batsmen generally performing better.
 
-This box plot (Figure 5) compares the batting averages of left-handed and right-handed batsmen.
+@homeRunsVsHardHitPos
 
+```{r}
+#| label: fig7-homeRunsVsHardHitPos
 
-
-Key Insights:
-
--   As seen before, both batting styles show very similar distributions for batting averages, with nearly identical medians and ranges.
--   This reinforces the finding from the batting style comparison table that batting style does not significantly influence batting average.
-
-Given the lack of variability in batting average by batting style, this metric appears less relevant to the differences in performance.
-
-### Stacked Bar Chart
-
-The bar chart (Figure 6) provides a cumulative comparison of the total boundaries hit by left-handed and right-handed batsmen.
-
- 
+# Scatterplot: Home Runs vs Hard Hit % by Position Group
+ggplot(combined_data, aes(x = hard_hit_percent, y = home_run, color = Pos)) +
+  geom_point(alpha = 0.7, size = 3) +
+  labs(
+    title = "Home Runs vs Hard Hit % by Position",
+    x = "Hard Hit %",
+    y = "Home Runs"
+  ) +
+  theme_minimal()
+```
 
 Key Insights:
 
--   Right-handed batsmen have hit a substantially higher number of total boundaries compared to left-handed batsmen.
--   This complements the box plot findings and emphasizes the stronger boundary-hitting ability of right-handed batsmen overall.
+
+@homeRunsVsWalksLeaguePos
+
+```{r}
+#| label: fig8-homeRunsVsWalksLeaguePos
+
+# Scatterplot: Home Runs vs Walks by League and Position
+ggplot(combined_data, aes(x = walk, y = home_run, color = Pos)) +
+  geom_point(alpha = 0.7, size = 2) +
+  facet_wrap(~ Lg) +
+  labs(
+    title = "Home Runs vs Walks by League and Position",
+    x = "Walks",
+    y = "Home Runs"
+  ) +
+  theme_minimal()
+```
+
+Key Insights:
+
+
+
+
 
 # Conclusion
 
-This project explored the factors influencing batting strike rate and the impact of batting style on performance metrics such as boundaries and batting average. Our analysis revealed that boundaries percentage has the strongest influence on batting strike rate, followed by batting average, highlighting the importance of aggressive scoring in shorter cricket formats like T20. Batting style significantly impacts boundary-hitting performance, with right-handed batsmen consistently outperforming left-handed batsmen in total and median boundaries hit. However, batting average is largely unaffected by batting style, with both left-handed and right-handed batsmen showing similar distributions and median values. These findings emphasize the nuanced role of batting style in player performance and the critical importance of boundary-hitting ability in driving scoring efficiency. This project demonstrates the value of data-driven insights in sports analytics and provides a foundation for further exploration into player performance dynamics.
+
 
 # References/Sources
 

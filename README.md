@@ -1,23 +1,45 @@
-# Project Title
+# Analyzing the Correlation between Swing Speed and Related Metrics in Major League Baseball
 
-Write a 1-2 sentences that quickly and clearly convey what your repo is for.
+This repo analyzes how average swing speed impacts offensive performance for Major League Baseball players. It explores which factors such as home runs, whiff %, strikeout %, and launch angle—are most affected by swing speed. In addition, it examines whether a player’s league or position has a relationship to swing speed.
 
 ## Overview
 
-Expand on those introductory sentences with a brief but informative description of your project's purpose and goals. This section should help visitors decide whether they should dig deeper into your repo/project.
+This project explores average swing speed relationship to offensive performance. Using statistics from Baseball Savant and Baseball Reference, we can see which metrics are most affected by swing speed (home runs, whiff rate, strikeout rate, and launch angle). In addition we are investigating whether a player's position or league has any relationship with swing speed. This would show us if swing speed is influenced from their roles or organization and seeing if that relationship is significant. 
 
-### Interesting Insight
+Our overall goal of this project is to see how effective swing speed could be used to evaluate players and just finding out if there is a correlation or relationship. This analysis could be used by scouts, sports journalists or fans. 
 
-This is optional but highly recommended. You'll include one interesting insight from your project as part of the README. This insight is most effective when you include a visual. Keep in mind that this visual must be included as an image file (e.g., JPG, PNG, etc.). You can export plots created with `{ggplot2}` by using the function `ggsave`.
+
+
+## Interesting Insight
+
+One key insight from our analysis is that players with higher average swing speed tend to hit more home runs.  
+This agrees with the idea that swing speed is good predictor for home runs.
+
+![Home Runs vs Average Swing Speed](plots/swing_vs_hr.png)
 
 ## Repo Structure
 
-Use this section to explain the structure of your repo. This should help visitors quickly figure out where they should look to find certain elements. Further, you can use this space to highlight and briefly explain important/key files in the repo.
+This repository contains code, data, and documentation used in the analysis.
+
+### Key Files
+
+| FinalProjectCode.qmd        | Main analysis file with data cleaning, wrangling, anaylsis, and visualizations. |
+| FinalProjectReport.qmd      | Final polished write-up report. |
+| FinalProjectCode.html       | coding rendered as a HTML. |
+| README.md                   | Project summary and structure (this file)
+| FinalProjectInitialPlan.txt | Planning document  & outlining 
+| Project_Guidelines.md       | Prof Hatfield rules and expectations of the project. |
+| NOTES                       | notes used furring project. |
 
 ## Data Sources and Acknowledgements
 
-Be sure to list where you got any data used within the project. Be sure to acknowledge any one whose work or elements you're drawing upon.
+- **Baseball Savant** ([baseballsavant.mlb.com](https://baseballsavant.mlb.com/)) — gave swing speed and advanced metrics (whiff %, hard hit %, etc.).
+- **Baseball Reference** ([baseball-reference.com](https://www.baseball-reference.com/leagues/majors/2024-standard-batting.shtml)) — gave position and league
 
 ## Authors
 
-Give information about who are the authors of the project and how people can get in touch if they have questions.
+- Atticus Renault: akr6351@psu.edu
+
+- Noah Tobias  nwt5144@psu.edu
+
+- Sean Dasovich: sgd5239@psu.edu

@@ -195,110 +195,283 @@ The insights gained from these analyses form the foundation of our results and c
 
 ## Batting Metrics Summary Table
 
-This table (Table 1) provides an overview of the dataset's key batting performance metrics, including runs, boundaries, boundaries_percent, balls_faced, matches, batting_avg, and strike_rate. The summary statistics (mean, median, minimum, and maximum) offer valuable context about the range and distribution of these variables.
+@battingStatsSummary provides a baseline for the level we can expect from these MLB players. While these summary statistics alone are not particularly enlightening, they set the background for future comparison. 
 
+```{r}
+#| label: tbl1-battingStatsSummary
 
+# Calculate summary statistics
+summary_table <- batting_data %>%
+  reframe(
+    Variable = c(
+      "home_run", 
+      "walk", 
+      "k_percent", 
+      "b_intent_walk", 
+      "avg_swing_speed", 
+      "launch_angle_avg",
+      "hard_hit_percent",
+      "whiff_percent"
+    ),
+    Mean = c(
+      mean(home_run, na.rm = TRUE), 
+      mean(walk, na.rm = TRUE), 
+      mean(k_percent, na.rm = TRUE), 
+      mean(b_intent_walk, na.rm = TRUE), 
+      mean(avg_swing_speed, na.rm = TRUE), 
+      mean(launch_angle_avg, na.rm = TRUE),
+      mean(hard_hit_percent, na.rm = TRUE), 
+      mean(whiff_percent, na.rm = TRUE)
+    ),    
+    Median = c(
+      median(home_run, na.rm = TRUE), 
+      median(walk, na.rm = TRUE), 
+      median(k_percent, na.rm = TRUE), 
+      median(b_intent_walk, na.rm = TRUE), 
+      median(avg_swing_speed, na.rm = TRUE), 
+      median(launch_angle_avg, na.rm = TRUE),
+      median(hard_hit_percent, na.rm = TRUE), 
+      median(whiff_percent, na.rm = TRUE)
+    ),
+    Minimum = c(
+      min(home_run, na.rm = TRUE), 
+      min(walk, na.rm = TRUE), 
+      min(k_percent, na.rm = TRUE), 
+      min(b_intent_walk, na.rm = TRUE), 
+      min(avg_swing_speed, na.rm = TRUE), 
+      min(launch_angle_avg, na.rm = TRUE),
+      min(hard_hit_percent, na.rm = TRUE), 
+      min(whiff_percent, na.rm = TRUE)
+    ),
+    Maximum = c(
+      max(home_run, na.rm = TRUE), 
+      max(walk, na.rm = TRUE), 
+      max(k_percent, na.rm = TRUE), 
+      max(b_intent_walk, na.rm = TRUE), 
+      max(avg_swing_speed, na.rm = TRUE), 
+      max(launch_angle_avg, na.rm = TRUE),
+      max(hard_hit_percent, na.rm = TRUE), 
+      max(whiff_percent, na.rm = TRUE)
+    )
+  )
+
+# Display Summary Statistics Table ----
+summary_table %>%
+  kable(
+    caption = "Summary Statistics for Key Batting Variables", 
+    digits = 2, 
+    align = c("l", rep("c", 4))
+  ) %>%
+  kable_styling(
+    bootstrap_options = c("striped", "hover", "condensed"), 
+    full_width = FALSE, 
+    font_size = 14
+  ) %>%
+  row_spec(0, bold = TRUE)  # Bold header row
+```
 
 Key Insights:
 
--   The mean batting strike rate is 125.96, with values ranging from 80.77 to 168.23, highlighting variation in scoring efficiency among players.
--   On average, players faced 1,029 balls, scored 1,327 runs, and hit 170 boundaries, demonstrating the general scale of performance in the dataset.
+-   In general, the mean is close to the median, which indicates that there are not significant skews in either direction.
+-   Over the course of a season, the average player -- playing most regular season games -- hits about 22 home runs and walks about 57 times (3 of which are intentional). 
+-   That same player has an average bat speed of 72 mph, launching the ball around 14 degrees (above the plane parallel to the ground) and missing the ball 24% of the time. 
+-   When making contact, that player can expect a hard hit ball (exit velocity of 95 mph) about 42% of the time.
 
-This table establishes a foundational understanding of the dataset and help us explore relationships further in the context of our analysis.
+The table presents solid ground to build our future analyses off of.
 
-## Factors Influencing Batting Strike Rate
+## Factors Influenced by Average Bat Speed and Hard Hit %
 
-### Correlation Between Strike Rate and Other Metrics
+### Correlation Between Batting Metrics
 
-This correlation heatmap (Figure 1) illustrates the relationships between batting_strike_rate and key batting metrics such as runs, boundaries, boundaries_percent, matches, balls_faced, and batting_avg. The heatmap helps identify the variables that have the strongest influence on batting strike rate
+@correlationHeatmap shows the relative strength of how each batting statistics influences every other statistic. The diagonal will be perfect correlation, and the matrix as a whole is symmetric since metrics are mirrored on either axis. Note that there are no negative correlations between metrics.
 
+```{r}
+#| label: fig1-correlationHeatmap
 
+# Compute correlation matrix after removing Player name columns
+correlation_matrix <- batting_data %>%
+  select(-`last_name, first_name`) %>%  # drop non-numeric columns
+  cor(use = "complete.obs")
+
+# Melt correlation matrix into long format
+correlation_melt <- melt(correlation_matrix)
+
+# Plot heatmap
+ggplot(correlation_melt, aes(x = Var1, y = Var2, fill = value)) +
+  geom_tile(color = "white") +
+  scale_fill_gradient2(
+    low = "blue", 
+    high = "red", 
+    mid = "white", 
+    midpoint = 0, 
+    limit = c(-1, 1), 
+    space = "Lab", 
+    name = "Correlation"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
+  labs(
+    title = "Correlation Heatmap",
+    x = "",
+    y = ""
+  )
+
+```
 
 Key Insights:
 
--   Boundaries_Percent shows the strongest positive correlation with batting_strike_rate, indicating that players who score a higher percentage of their runs through boundaries tend to have higher strike rates. In shorter formats like T20 cricket, where aggressive scoring is crucial, this finding emphasizes the importance of boundary-hitting ability as a primary driver of strike rate. It suggests that players focusing on hitting fours and sixes can significantly impact their teams' scoring pace.
--   Batting_Avg also demonstrates a moderate positive correlation, suggesting that consistent scorers (players with higher batting averages) are more likely to have higher strike rates.
--   Other metrics, such as balls_faced and matches, show minimal or no significant correlation with batting_strike_rate. This implies that these variables, while important for contextualizing a player's career or role in a team, are less critical when analyzing scoring efficiency. For example, players who face more balls or play more matches do not necessarily have higher strike rates, highlighting the limited predictive value of these metrics for scoring efficiency.
+
 
 The heatmap lays the ground for deeper analysis of boundaries_percent and batting_avg, which are explored further in the scatter plots.
 
-### Scatter Plots
+### Scatter Plots (Without Categories)
 
-The following scatter plot (Figure 2) shows the relationship between batting_strike_rate and boundaries_percent, with color-coded points representing batting styles (left-hand bat vs. right-hand bat). A loess curve has been added to identify trends.
+@homeRunVsAvgSwingSpeed
 
+```{r}
+#| label: fig2-homeRunVsAvgSwingSpeed
 
+# Scatterplot: Home Run vs Average Swing Speed
+ggplot(batting_data, aes(x = avg_swing_speed, y = home_run)) +
+  geom_point(color = "blue", alpha = 0.7) +
+  labs(
+    title = "Home Runs vs Average Swing Speed",
+    x = "Average Swing Speed",
+    y = "Home Runs"
+  ) +
+  theme_minimal()
+ggsave("plots/swing_vs_hr.png", width = 7, height = 5)
+
+```
 
 Key Insights:
 
--   A strong positive relationship is evident between boundaries_percent and batting_strike_rate. Players with higher percentages of runs from boundaries consistently achieve higher strike rates.
--   The relationship holds true across both batting styles, as evidenced by the overlapping trend line. However, the distribution of players shows some variation, with right-handed batsmen slightly more prevalent at higher boundaries_percent values.
--   This showcases the insight that focusing on aggressive scoring through boundaries is a key factor in driving high strike rates, regardless of batting style, making it an essential strategy for impactful performances in modern cricket.
 
-The scatter plot (Figure 3) examines the relationship between batting_strike_rate and batting_avg, again differentiating batting styles.
+@kVsHardHit
 
+```{r}
+#| label: fig3-kVsHardHit
 
+# Scatterplot: K% vs Hard Hit %
+ggplot(batting_data, aes(x = k_percent, y = hard_hit_percent)) +
+  geom_point(color = "red", alpha = 0.7) +
+  labs(
+    title = "Strikeout % vs Hard Hit %",
+    x = "Strikeout %",
+    y = "Hard Hit %"
+  ) +
+  theme_minimal()
+```
 
 Key Insights:
 
--   A moderate positive relationship is visible between batting_avg and batting_strike_rate. Players with higher averages tend to maintain higher strike rates, though the trend is less pronounced than with boundaries_percent.
--   The loess curve reveals a slightly nonlinear relationship, with strike rates stabilizing at higher batting averages.
--   This suggests that while batting consistency contributes to scoring efficiency, it is not as impactful as boundary-hitting.
 
-Together, these visualizations highlight the significance of boundaries_percent and batting_avg in determining a player's batting strike rate, aligning with the findings from the correlation heatmap.
+@kVsHomeRuns
+
+```{r}
+#| label: fig4-kVsHomeRuns
+
+# Scatterplot: K% vs Home Runs
+ggplot(batting_data, aes(x = k_percent, y = home_run)) +
+  geom_point(color = "red", alpha = 0.7) +
+  labs(
+    title = "Strikeout % vs Home Runs",
+    x = "Strikeout %",
+    y = "Home Runs"
+  ) +
+  theme_minimal()
+```
+
+Key Insights:
+
+
+@SwingSpeedVsWhiff
+
+```{r}
+#| label: fig5-SwingSpeedVsWhiff
+
+# Scatterplot: Swing Speed vs Whiff %
+ggplot(batting_data, aes(x = avg_swing_speed, y = whiff_percent)) +
+  geom_point(color = "red", alpha = 0.7) +
+  labs(
+    title = "Average Swing Speed vs Whiff %",
+    x = "Average Swing Speed",
+    y = "Whiff %"
+  ) +
+  theme_minimal()
+```
+
+Key Insights:
+
 
 ## Influence of Batting Style on Batting Metrics
 
-### Batting Style Comparison
+### Scatter Plots (With Categories)
 
-This table (Table 2) compares key batting metrics between left-handed and right-handed batsmen. The metrics include average runs scored, boundaries hit, batting average, and strike rate.
+@homeRunsVsWalksLeague
 
+```{r}
+#| label: fig6-homeRunsVsWalksLeague
 
-
-Key Insights:
-
--   Right-handed batsmen outperform left-handed batsmen across all metrics, with a higher average of runs (1,423.18 vs. 1,171.54), boundaries (180.77 vs. 153.14), and strike rate (126.79 vs. 124.62). These differences suggest that right-handed batsmen may have an edge in aggressive and impactful scoring.
--   Left-handed batsmen show a slightly better batting average (18.04 vs. 17.94) compared to right-handed batsmen, indicating marginally higher consistency in run-scoring. However, the difference is minimal, suggesting that batting average is not significantly influenced by batting style.
--   Implications: While the differences in metrics are not drastic, they suggest that batting style does have an influence on certain performance metrics, particularly on the ability to score boundaries and maintain a high strike rate. This supports the notion that batting style could be a factor in performance evaluation, especially in shorter cricket formats.
-
-These findings set the stage for the upcoming visualisations, which delve deeper into the relationship between batting style and boundary-hitting ability, as well as total boundaries scored.
-
-### Box Plots
-
-This box plot (Figure 4) illustrates the distribution of boundaries hit by left-handed and right-handed batsmen. It provides a clear comparison of the performance between the two batting styles.
-
-
+# Scatterplot: Home Runs vs Walks by League
+ggplot(combined_data, aes(x = walk, y = home_run, color = Lg)) +
+  geom_point(alpha = 0.7, size = 3) +
+  labs(
+    title = "Home Runs vs Walks by League",
+    x = "Walks",
+    y = "Home Runs"
+  ) +
+  theme_minimal()
+```
 
 Key Insights:
 
--   Building on the findings of Table 2, right-handed batsmen have a significantly wider range in the number of boundaries hit, with a higher median and greater maximum values compared to left-handed batsmen.
--   Left-handed batsmen, while consistent, show a smaller range and lower overall performance in boundary hitting.
--   This suggests that batting style plays a role in boundary-hitting ability, with right-handed batsmen generally performing better.
 
-This box plot (Figure 5) compares the batting averages of left-handed and right-handed batsmen.
+@homeRunsVsHardHitPos
 
+```{r}
+#| label: fig7-homeRunsVsHardHitPos
 
-
-Key Insights:
-
--   As seen before, both batting styles show very similar distributions for batting averages, with nearly identical medians and ranges.
--   This reinforces the finding from the batting style comparison table that batting style does not significantly influence batting average.
-
-Given the lack of variability in batting average by batting style, this metric appears less relevant to the differences in performance.
-
-### Stacked Bar Chart
-
-The bar chart (Figure 6) provides a cumulative comparison of the total boundaries hit by left-handed and right-handed batsmen.
-
- 
+# Scatterplot: Home Runs vs Hard Hit % by Position Group
+ggplot(combined_data, aes(x = hard_hit_percent, y = home_run, color = Pos)) +
+  geom_point(alpha = 0.7, size = 3) +
+  labs(
+    title = "Home Runs vs Hard Hit % by Position",
+    x = "Hard Hit %",
+    y = "Home Runs"
+  ) +
+  theme_minimal()
+```
 
 Key Insights:
 
--   Right-handed batsmen have hit a substantially higher number of total boundaries compared to left-handed batsmen.
--   This complements the box plot findings and emphasizes the stronger boundary-hitting ability of right-handed batsmen overall.
+
+@homeRunsVsWalksLeaguePos
+
+```{r}
+#| label: fig8-homeRunsVsWalksLeaguePos
+
+# Scatterplot: Home Runs vs Walks by League and Position
+ggplot(combined_data, aes(x = walk, y = home_run, color = Pos)) +
+  geom_point(alpha = 0.7, size = 2) +
+  facet_wrap(~ Lg) +
+  labs(
+    title = "Home Runs vs Walks by League and Position",
+    x = "Walks",
+    y = "Home Runs"
+  ) +
+  theme_minimal()
+```
+
+Key Insights:
+
+
+
+
 
 # Conclusion
 
-This project explored the factors influencing batting strike rate and the impact of batting style on performance metrics such as boundaries and batting average. Our analysis revealed that boundaries percentage has the strongest influence on batting strike rate, followed by batting average, highlighting the importance of aggressive scoring in shorter cricket formats like T20. Batting style significantly impacts boundary-hitting performance, with right-handed batsmen consistently outperforming left-handed batsmen in total and median boundaries hit. However, batting average is largely unaffected by batting style, with both left-handed and right-handed batsmen showing similar distributions and median values. These findings emphasize the nuanced role of batting style in player performance and the critical importance of boundary-hitting ability in driving scoring efficiency. This project demonstrates the value of data-driven insights in sports analytics and provides a foundation for further exploration into player performance dynamics.
+
 
 # References/Sources
 

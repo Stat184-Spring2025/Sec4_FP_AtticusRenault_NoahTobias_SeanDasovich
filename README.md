@@ -24,16 +24,22 @@ This repository contains code, data, and documentation used in the analysis.
 ### Key Files
 
 | FinalProjectCode.qmd        | Main analysis file with data cleaning, wrangling, anaylsis, and visualizations. |
+
 | FinalProjectReport.qmd      | Final polished write-up report. |
+
 | FinalProjectCode.html       | coding rendered as a HTML. |
-| README.md                   | Project summary and structure (this file)
-| FinalProjectInitialPlan.txt | Planning document  & outlining 
+
+| README.md                   | Project summary and structure (this file) |
+
+| FinalProjectInitialPlan.txt | Planning document  & outlining |
+
 | Project_Guidelines.md       | Prof Hatfield rules and expectations of the project. |
-| NOTES                       | notes used furring project. |
+
+| NOTES                       | notes used durring project. |
 
 ## Data Sources and Acknowledgements
 
-- **Baseball Savant** ([baseballsavant.mlb.com](https://baseballsavant.mlb.com/)) — gave swing speed and advanced metrics (whiff %, hard hit %, etc.).
+- **Baseball Savant** ([baseballsavant.mlb.com](https://baseballsavant.mlb.com/)) — gave swing speed and metrics (whiff %, hard hit %, etc.).
 - **Baseball Reference** ([baseball-reference.com](https://www.baseball-reference.com/leagues/majors/2024-standard-batting.shtml)) — gave position and league
 
 ## Authors

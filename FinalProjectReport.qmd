@@ -19,7 +19,7 @@ Tracking statistics has been a core part of baseball since its birth in the 19th
 
 In this project, we explore three core research questions:
 
-1.  Does a batter's position affect his batting performance?
+1.  Does a batter's primary position affect his batting performance?
 2.  Does the league a batter plays in affect his batting performance?
 3.  What factors (e.g., home runs, whiff %, strikeout %, hard hit %, average launch angle) are most influenced by bat speed for Major League Baseball batters?
 
@@ -52,7 +52,7 @@ To be able to answer both research questions, we merged the two data sets and ap
 ### Filtering and Cleaning
 
 -   For the Savant dataset, the bulk of filtering and cleaning had been done prior to reading the csv into the environment. The only adjustment was splitting first name and last name.
--   The full quantitative variable list: home runs, strikeout %, walk %, batting average, intentional walks, average bat speed, fast swing %, exit velocity, launch angle, barrel %, hard hit %, outside the zone swing %, whiff %, swing %, sprint speed.
+-   The full quantitative variable list: home runs, strikeout %, walk %, intentional walks, average bat speed, launch angle, hard hit %, and whiff %.
 -   The data includes only qualified batters from the 2024 regular season. A hitter is qualified if he makes 3.1 plate appearances per game (~502 in a standard 162 game season).
 -   Some unrelated columns were removed like player_id and year.
 
@@ -65,7 +65,7 @@ To be able to answer both research questions, we merged the two data sets and ap
 -   The data sets were joined by the player's name.
 -   The merged table combines both the heavily quantitative variables at the heart of the first research question with the categorical variables of league and position.
 -   After merging, only qualified batters remain.
--   The position attribute was originally in terms of traditional baseball scoring conventions where each position is attributed a number 1 through 9 (except for a designated hitter). This was adjusted to give broader descriptions of "Infield", "Outfield" or "Neither".
+-   The position attribute was originally in terms of traditional baseball scoring conventions where each position is attributed a number 1 through 9 (or "D" for designated hitter). This was adjusted to give broader descriptions of "Infield", "Outfield" or "DH" (designated hitter).
 
 ## Final Dataset
 
@@ -483,5 +483,142 @@ Key Insights:
 ```{r} 
 #| echo: TRUE 
 #| eval: FALSE
+## Load Necessary Packages
+library(tidyverse)
+library(dplyr)
+library(knitr)
+library(kableExtra)
+library(reshape2)
+library(ggplot2)
+
+# Step 1: Read original data CSV without column names
+mlb_data_raw <- read_csv("https://raw.githubusercontent.com/nwt5144/FinalProjectStat184/refs/heads/main/stats.csv", show_col_types = FALSE)
+
+# Select columns of interest
+batting_data <- mlb_data_raw %>%
+  select(
+    'last_name, first_name',
+    home_run, 
+    walk, 
+    k_percent, 
+    b_intent_walk, 
+    avg_swing_speed, 
+    launch_angle_avg,
+    hard_hit_percent,
+    whiff_percent
+  )
+
+# Prepare batting_data for merging
+batting_data_for_combo <- batting_data %>%
+  separate(`last_name, first_name`, into = c("LastName", "FirstName"), sep = ", ", remove = FALSE) %>%
+  select(-`last_name, first_name`) %>%
+  mutate(
+    Player = paste(FirstName, LastName),
+    Player = str_trim(Player)
+  )
+
+# Read roster data
+roster_data <- read_csv("https://raw.githubusercontent.com/nwt5144/FinalProjectStat184/refs/heads/main/NlAlPos.csv")
+
+# Clean roster_data
+roster_data <- roster_data %>%
+  mutate(
+    Player = str_replace(Player, "\\*", ""), 
+    Player = str_trim(Player)
+  )
+
+# Keep only necessary columns
+roster_data_small <- roster_data %>%
+  select(Player, Lg, Pos)
+
+# Merge on Player
+combined_data <- batting_data_for_combo %>%
+  left_join(roster_data_small, by = "Player")
+
+# Clean and group Pos
+combined_data <- combined_data %>%
+  mutate(
+    Pos = str_replace_all(Pos, "\\*", ""),
+    Pos = str_extract(Pos, "\\d"),
+    Pos = case_when(
+      Pos == "1" ~ "Pitcher",
+      Pos %in% c("2", "3", "4", "5", "6") ~ "Infielder",
+      Pos %in% c("7", "8", "9") ~ "Outfielder",
+      TRUE ~ NA_character_
+    )
+  )
+
+head(combined_data)
+
+# Calculate summary statistics
+summary_table <- batting_data %>%
+  reframe(
+    Variable = c(
+      "home_run", 
+      "walk", 
+      "k_percent", 
+      "b_intent_walk", 
+      "avg_swing_speed", 
+      "launch_angle_avg",
+      "hard_hit_percent",
+      "whiff_percent"
+    ),
+    Mean = c(
+      mean(home_run, na.rm = TRUE), 
+      mean(walk, na.rm = TRUE), 
+      mean(k_percent, na.rm = TRUE), 
+      mean(b_intent_walk, na.rm = TRUE), 
+      mean(avg_swing_speed, na.rm = TRUE), 
+      mean(launch_angle_avg, na.rm = TRUE),
+      mean(hard_hit_percent, na.rm = TRUE), 
+      mean(whiff_percent, na.rm = TRUE)
+    ),    
+    Median = c(
+      median(home_run, na.rm = TRUE), 
+      median(walk, na.rm = TRUE), 
+      median(k_percent, na.rm = TRUE), 
+      median(b_intent_walk, na.rm = TRUE), 
+      median(avg_swing_speed, na.rm = TRUE), 
+      median(launch_angle_avg, na.rm = TRUE),
+      median(hard_hit_percent, na.rm = TRUE), 
+      median(whiff_percent, na.rm = TRUE)
+    ),
+    Minimum = c(
+      min(home_run, na.rm = TRUE), 
+      min(walk, na.rm = TRUE), 
+      min(k_percent, na.rm = TRUE), 
+      min(b_intent_walk, na.rm = TRUE), 
+      min(avg_swing_speed, na.rm = TRUE), 
+      min(launch_angle_avg, na.rm = TRUE),
+      min(hard_hit_percent, na.rm = TRUE), 
+      min(whiff_percent, na.rm = TRUE)
+    ),
+    Maximum = c(
+      max(home_run, na.rm = TRUE), 
+      max(walk, na.rm = TRUE), 
+      max(k_percent, na.rm = TRUE), 
+      max(b_intent_walk, na.rm = TRUE), 
+      max(avg_swing_speed, na.rm = TRUE), 
+      max(launch_angle_avg, na.rm = TRUE),
+      max(hard_hit_percent, na.rm = TRUE), 
+      max(whiff_percent, na.rm = TRUE)
+    )
+  )
+
+# Display Summary Statistics Table ----
+summary_table %>%
+  kable(
+    caption = "Summary Statistics for Key Batting Variables", 
+    digits = 2, 
+    align = c("l", rep("c", 4))
+  ) %>%
+  kable_styling(
+    bootstrap_options = c("striped", "hover", "condensed"), 
+    full_width = FALSE, 
+    font_size = 14
+  ) %>%
+  row_spec(0, bold = TRUE)  # Bold header row
+
+
 ```
 

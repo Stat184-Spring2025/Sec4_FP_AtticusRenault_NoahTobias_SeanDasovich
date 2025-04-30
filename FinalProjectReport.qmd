@@ -23,8 +23,6 @@ In this project, we explore three core research questions:
 2.  Does the league a batter plays in affect his batting performance?
 3.  What factors (e.g., home runs, whiff %, strikeout %, hard hit %, average launch angle) are most influenced by bat speed for Major League Baseball batters?
 
-
-
 These questions aim to understand bat speed's place in baseball today and the role of external factors in affecting a batter's approach/training. The insights from this data analysis could influence multiple levels of the baseball pipeline. At the training stage, these results may reveal how valuable bat speed is as a trainable skill. When thinking about position, these findings could result in further discussion about balancing defensive and offensive proficiency. At a structural level, our analysis can be used in determining if the National and American leagues value different attributes in a player.
 
 # Data Provenance

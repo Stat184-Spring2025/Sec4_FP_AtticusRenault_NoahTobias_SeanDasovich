@@ -478,5 +478,8 @@ Key Insights:
 
 
 # Code Appendix
-
+```{r} 
+#| echo: TRUE 
+#| eval: FALSE
+```
 

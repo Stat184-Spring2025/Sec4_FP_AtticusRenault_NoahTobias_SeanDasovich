@@ -309,40 +309,60 @@ Key Insights:
 
 ### Scatter Plots
 
+@homeRunvsAvgSwingSpeed visualizes the correlation between average bat speed (interchangeable with average swing speed) and home runs hit by qualified MLB batters. Home runs are increasingly emphasized in modern baseball, so this scatterplot could shed some light on how these metrics are related.
+
 ```{r}
+#| label: fig1-homeRunvsAvgSwingSpeed
+
 # Scatterplot: Home Run vs Average Swing Speed
 ggplot(batting_data, aes(x = avg_swing_speed, y = home_run)) +
   geom_point(color = "blue", alpha = 0.7) +
   labs(
     title = "Home Runs vs Average Swing Speed",
-    x = "Average Swing Speed",
+    x = "Average Swing Speed (mph)",
     y = "Home Runs"
   ) +
   theme_minimal()
 ```
 
-Key Insights:
+**Key Insights:**
+
+-   There is a moderate, positive correlation between average swing speed and home runs hit by qualified MLB batters.
+
+-   The two 2024 MVPs, Aaron Judge and Shohei Ohtani, are the two cases with the most home runs (though not the highest average swing speed).
+
+-   The biggest cluster is around a swing speed in the low 70s and around 20 home runs.
+
+@kvsAvgSwingSpeed is another scatterplot, this time comparing average swing speed with a batter's strikeout % (the percent of plate appearances the result in a strikeout). With more emphasis on bigger hits, this visualization can determine if there is a trade-off required.
 
 ```{r}
-# Scatterplot: K% vs Hard Hit %
+#| label: fig2-kvsAvgSwingSpeed
+
+# Scatterplot: K% vs average swing speed
 ggplot(batting_data, aes(x = avg_swing_speed, y = k_percent)) +
   geom_point(color = "red", alpha = 0.7) +
   labs(
-    title = "Strikeout % vs avg_swing_speed%",
-    x = "avg_swing_speed",
+    title = "Strikeout % vs Average Swing Speed",
+    x = "Average Swing Speed (mph)",
     y = "Strikeout %"
   ) +
   theme_minimal()
 ```
 
-Key Insights:
+**Key Insights:**
+
+-   There is a slight positive correlation between average swing speed and strikeout % but the points are more spread out than in the previous scatterplot. Overall, there does not seem to be a significant trade-off for increasing bat speed.
+
+-   A significant factor not captured by this plot is a batter's "plate discipline", essentially how likely they are to swing at bad pitches. Batter's with high swing speed are not necessarily less selective than batter's with low swing speed.
+
+-   However, a slower swing does keep the bat in the strike zone for longer, increasing the chances of making contact, even on a bad pitch. This could explain why the correlation is more defined at the lower end of the bottom axis.
 
 ### Correlation Heatmap
 
-@correlationHeatmap shows the relative strength of how each batting statistics influences every other statistic. The diagonal will be perfect correlation, and the matrix as a whole is symmetric since metrics are mirrored on either axis. Note that there are no negative correlations between metrics.
+@correlationHeatmap shows the relative strength of how each batting statistics influences every other statistic. The diagonal will be perfect correlation, and the matrix as a whole is symmetric since metrics are mirrored on either axis.
 
 ```{r}
-#| label: fig1-correlationHeatmap
+#| label: fig3-correlationHeatmap
 
 # Compute correlation matrix after removing Player name columns
 correlation_matrix <- batting_data %>%
@@ -374,14 +394,24 @@ ggplot(correlation_melt, aes(x = Var1, y = Var2, fill = value)) +
 
 ```
 
-Key Insights:
+**Key Insights:**
+
+-   Apart from the one-to-one correlations, the strongest relationships between attributes are between strikeout % and whiff % and also between average swing speed and hard hit %.
+
+-   The areas of little to no correlation are between strikeout % and intentional walks, average launch angle and average swing speed, and hard hit % and average launch angle. This is important considering average launch angle is a metric commonly associated with home runs.
+
+-   There are no negative correlations between variables; they all generally increase with respect to each other.
 
 ## Influence of League and Position
 
 ### Bar Graphs
 
+@avgSwingSpeedLeague breaks down average swing speed by league. The "2LG" category is players who played in both leagues in 2024. The sample size for that is only 5, so it is not statistically significant.
+
 ```{r}
-avg_swing_speed_league <- combined_data%>%
+#| label: fig4-avgSwingSpeedLeague
+
+avg_swing_speed_league <- combined_data %>%
   group_by(Lg) %>%
   summarize(avg_swing_speed = mean(avg_swing_speed, na.rm = TRUE))
 
@@ -398,33 +428,47 @@ ggplot(avg_swing_speed_league, aes(x = Lg, y = avg_swing_speed)) +
 
 ```
 
-Key Insights:
+**Key Insights:**
+
+-   The average of each league's batter's average swing speed is approximately the same. There is essentially no difference between the leagues as far as swing speed is concerned.
+
+-   For both leagues, the average swing speed was a little over 70 mph. This is very similar to the overall MLB average swing speed of 71.92 mph found in @battingStatsSummary.
+
+@homeRunsLeague looks at the total number of home runs hit by players in the American and National Leagues.
 
 ```{r}
+#| label: fig5-homeRunsLeague
+
 hr_league <- combined_data %>%
   group_by(Lg) %>%
-  summarize(hr = home_run)
+  summarize(hr = mean(home_run, na.rm = TRUE))
 
-# Bar Graph: Total Home Runs by League
+# Bar Graph: Average Home Runs by League
 ggplot(hr_league, aes(x = Lg, y = hr)) +
   geom_col() +
   labs(
-    title = "Total Home Runs by League",
+    title = "Average Home Runs by League",
     x = "League",
-    y = "Home Runs"
+    y = "Average Home Runs"
   ) +
   theme_minimal()
 
 ```
 
-Key Insights:
+**Key Insights:**
+
+-   Like the previous graph, there is little difference between the American League and National League with regard to the average per player home runs hit.
+
+-   The American League has a slight edge but both leagues rest around 22 home runs per player. This is similar to the MLB-wide average of 21.67 in @battingStatsSummary.
+
+-   League does not appear to be an indicator of a batter's home run production.
 
 ### Scatterplot
 
-@homeRunsVsWalksLeaguePos
+@homeRunsVsWalksLeaguePos displays a visualization divided into the three league designations with points plotted by walks and homeruns. The points are color coded by the primary position of the MLB player.
 
 ```{r}
-#| label: fig8-homeRunsVsWalksLeaguePos
+#| label: fig6-homeRunsVsWalksLeaguePos
 
 # Scatterplot: Home Runs vs Walks by League and Position
 ggplot(combined_data, aes(x = walk, y = home_run, color = Pos)) +
@@ -438,7 +482,15 @@ ggplot(combined_data, aes(x = walk, y = home_run, color = Pos)) +
   theme_minimal()
 ```
 
-Key Insights:
+**Key Insights:**
+
+-   In terms of the correlation between walks and home runs, both leagues exhibit a moderate positive relationship.
+
+-   The AL and NL distributions have similar shapes with each having high potential outliers. The National League distribution does have a few more players with low home run counts but is also densely populated around the average of the dataset.
+
+-   The positions "Infielder" and "Outfielder" are mostly evenly dispersed. On the whole, there are more infielders than outfielders by virtue of the layout of a baseball field.
+
+-   While there are not enough DHs to be significant, it is interesting to note that the National League's potential upper outliers are all DHs, and the American League's potential upper outliers are outfielders.
 
 # Conclusion
 

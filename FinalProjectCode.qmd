@@ -117,6 +117,73 @@ summary_table %>%
 ```
 
 
+# Prepare batting_data for merging with second dataset
+
+```{r}
+# Prepare batting_data for merging
+batting_data_for_combo <- batting_data %>%
+  separate(`last_name, first_name`, into = c("LastName", "FirstName"), sep = ", ", remove = FALSE) %>%
+  select(-`last_name, first_name`) %>%
+  mutate(
+    Player = paste(FirstName, LastName),
+    Player = str_trim(Player)
+  )
+
+# Read roster data
+roster_data <- read_csv("https://raw.githubusercontent.com/nwt5144/FinalProjectStat184/refs/heads/main/NlAlPos.csv")
+
+
+# Clean roster_data
+roster_data1 <- roster_data %>%
+  mutate(
+   Player = str_replace(Player, "\\*", ""), 
+   Player = str_trim(Player)
+  )
+
+
+ roster_data2 <- roster_data1 %>%
+  mutate(
+    Player = str_replace(Player, "\\#", ""), 
+    Player = str_trim(Player)
+  )
+
+roster_data3 <- roster_data2 %>%
+  mutate(
+    Pos = str_replace(Pos, "\\*", ""), 
+    Pos = str_trim(Pos)
+  )
+
+roster_data4 <- roster_data3 %>%
+  distinct(Player, .keep_all = TRUE)
+
+# Keep only necessary columns
+roster_data_small <- roster_data4 %>%
+  select(Player, Lg, Pos)
+
+# Merge on Player
+combined_data <- batting_data_for_combo %>%
+  left_join(roster_data_small, by = "Player")
+
+# Clean and group Pos
+combined_data <- combined_data %>%
+  mutate(
+    Pos = str_replace_all(Pos, "\\*", ""),
+    Pos = str_extract(Pos, "."),
+    Pos = case_when(
+      Pos == "1" ~ "Pitcher",
+      Pos %in% c("2", "3", "4", "5", "6") ~ "Infielder",
+      Pos %in% c("7", "8", "9") ~ "Outfielder",
+      Pos == "D" ~ "DH",
+      TRUE ~ NA_character_
+    )
+  )
+
+head(combined_data)
+```
+
+
+
+
 # Scatterplot: Home Run vs Average Swing Speed
 
 ```{r}
@@ -129,8 +196,6 @@ ggplot(batting_data, aes(x = avg_swing_speed, y = home_run)) +
     y = "Home Runs"
   ) +
   theme_minimal()
-ggsave("plots/swing_vs_hr.png", width = 7, height = 5)
-
 ```
 
 
@@ -138,46 +203,16 @@ ggsave("plots/swing_vs_hr.png", width = 7, height = 5)
 
 ```{r}
 # Scatterplot: K% vs Hard Hit %
-ggplot(batting_data, aes(x = k_percent, y = hard_hit_percent)) +
+ggplot(batting_data, aes(x = avg_swing_speed, y = k_percent)) +
   geom_point(color = "red", alpha = 0.7) +
   labs(
-    title = "Strikeout % vs Hard Hit %",
-    x = "Strikeout %",
-    y = "Hard Hit %"
+    title = "Strikeout % vs avg_swing_speed%",
+    x = "avg_swing_speed",
+    y = "Strikeout %"
   ) +
   theme_minimal()
 ```
 
-
-# Scatterplot: K% vs Home Run %
-
-```{r}
-# Scatterplot: K% vs Hard Hit %
-ggplot(batting_data, aes(x = k_percent, y = home_run)) +
-  geom_point(color = "red", alpha = 0.7) +
-  labs(
-    title = "Strikeout % vs Home Runs",
-    x = "Strikeout %",
-    y = "Home Runs"
-  ) +
-  theme_minimal()
-```
-
-
-# Scatterplot: Average Swing Speed vs Whiff Percentage %
-
-
-```{r}
-# Scatterplot: K% vs Hard Hit %
-ggplot(batting_data, aes(x = avg_swing_speed, y = whiff_percent)) +
-  geom_point(color = "red", alpha = 0.7) +
-  labs(
-    title = "Average Swing Speed vs Whiff %",
-    x = "Average Swing Speed",
-    y = "Whiff %"
-  ) +
-  theme_minimal()
-```
 
 
 # Correlation matrix after removing Player name columns
@@ -212,78 +247,37 @@ ggplot(correlation_melt, aes(x = Var1, y = Var2, fill = value)) +
   )
 ```
 
-# Prepare batting_data for merging with second dataset
+
+
+# Scatterplot: Home Runs vs Hard Hit % by Position Group
 
 ```{r}
-# Prepare batting_data for merging
-batting_data_for_combo <- batting_data %>%
-  separate(`last_name, first_name`, into = c("LastName", "FirstName"), sep = ", ", remove = FALSE) %>%
-  select(-`last_name, first_name`) %>%
-  mutate(
-    Player = paste(FirstName, LastName),
-    Player = str_trim(Player)
-  )
+avg_swing_speed_league <- combined_data%>%
+  group_by(Lg) %>%
+  summarize(avg_swing_speed = mean(avg_swing_speed, na.rm = TRUE))
 
-# Read roster data
-roster_data <- read_csv("https://raw.githubusercontent.com/nwt5144/FinalProjectStat184/refs/heads/main/NlAlPos.csv")
-
-# Clean roster_data
-roster_data <- roster_data %>%
-  mutate(
-    Player = str_replace(Player, "\\*", ""), 
-    Player = str_trim(Player)
-  )
-
-# Keep only necessary columns
-roster_data_small <- roster_data %>%
-  select(Player, Lg, Pos)
-
-# Merge on Player
-combined_data <- batting_data_for_combo %>%
-  left_join(roster_data_small, by = "Player")
-
-# Clean and group Pos
-combined_data <- combined_data %>%
-  mutate(
-    Pos = str_replace_all(Pos, "\\*", ""),
-    Pos = str_extract(Pos, "\\d"),
-    Pos = case_when(
-      Pos == "1" ~ "Pitcher",
-      Pos %in% c("2", "3", "4", "5", "6") ~ "Infielder",
-      Pos %in% c("7", "8", "9") ~ "Outfielder",
-      TRUE ~ NA_character_
-    )
-  )
-
-head(combined_data)
-```
+hr_league <- combined_data%>%
+  group_by(Lg) %>%
+  summarize(hr = home_run)
 
 
-# Scatterplot: Home Runs vs Walks by League
-
-
-```{r}
-# Scatterplot: Home Runs vs Walks by League
-ggplot(combined_data, aes(x = walk, y = home_run, color = Lg)) +
-  geom_point(alpha = 0.7, size = 3) +
+# Scatterplot: Home Runs vs Hard Hit % by Position Group
+ggplot(avg_swing_speed_league, aes(x = Lg, y = avg_swing_speed)) +
+  geom_col() +
   labs(
-    title = "Home Runs vs Walks by League",
-    x = "Walks",
-    y = "Home Runs"
+    title = "Average Swing Speed by League",
+    x = "League",
+    y = "Average Swing Speed"
   ) +
   theme_minimal()
-```
 
 
-# Scatterplot: Home Runs vs Hard Hit % by Position Group
-
-```{r}
-# Scatterplot: Home Runs vs Hard Hit % by Position Group
-ggplot(combined_data, aes(x = hard_hit_percent, y = home_run, color = Pos)) +
-  geom_point(alpha = 0.7, size = 3) +
+# Bar Graph: Total Home Runs by League
+ggplot(hr_league, aes(x = Lg, y = hr)) +
+  geom_col() +
   labs(
-    title = "Home Runs vs Hard Hit % by Position",
-    x = "Hard Hit %",
+    title = "Total Home Runs by League",
+    x = "League",
     y = "Home Runs"
   ) +
   theme_minimal()

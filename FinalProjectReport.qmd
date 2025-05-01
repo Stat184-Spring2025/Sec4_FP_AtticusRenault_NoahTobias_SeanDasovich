@@ -15,7 +15,7 @@ execute:
 
 # Introduction
 
-Tracking statistics has been a core part of baseball since its birth in the 19th century. What began as tabulating hits and runs has evolved into batting averages, on base percentages, and complex measures of a player's "win contribution". The 2011 movie *Moneyball*, based on the Oakland Athletics 2002 season, brought advanced metrics to the public's eye and revealed statistics as a core component to gaining a competitive edge. This hyper-analysis of player performance is commonly referred to today as "sabermetrics". One of the key stats that emerged out of the data revolution was bat speed. The basic principle that "the harder you swing, the farther the ball goes" has become increasingly valuable in the modern game, which emphasizes home runs and big hits. This paper explores the relationship between bat speed and other metrics, assessing its advantages and trade-offs. 
+Tracking statistics has been a core part of baseball since its birth in the 19th century. What began as tabulating hits and runs has evolved into batting averages, on base percentages, and complex measures of a player's "win contribution". The 2011 movie *Moneyball*, based on the Oakland Athletics 2002 season, brought advanced metrics to the public's eye and revealed statistics as a core component to gaining a competitive edge. This hyper-analysis of player performance is commonly referred to today as "sabermetrics". One of the key stats that emerged out of the data revolution was bat speed. The basic principle that "the harder you swing, the farther the ball goes" has become increasingly valuable in the modern game, which emphasizes home runs and big hits. This paper explores the relationship between bat speed and other metrics, assessing its advantages and trade-offs.
 
 In this project, we explore three core research questions:
 
@@ -50,12 +50,17 @@ To be able to answer both research questions, we merged the two data sets and ap
 ### Filtering and Cleaning
 
 -   For the Savant dataset, the bulk of filtering and cleaning had been done prior to reading the csv into the environment. The only adjustment was splitting first name and last name.
+
 -   The full quantitative variable list: home runs, strikeout %, walk %, intentional walks, average bat speed, launch angle, hard hit %, and whiff %.
--   The data includes only qualified batters from the 2024 regular season. A hitter is qualified if he makes 3.1 plate appearances per game (~502 in a standard 162 game season).
+
+-   The data includes only qualified batters from the 2024 regular season. A hitter is qualified if he makes 3.1 plate appearances per game (\~502 in a standard 162 game season).
+
 -   Some unrelated columns were removed like player_id and year.
 
 -   For the Reference dataset, extra characters were cleaned out of the players' names.
+
 -   Every column was removed except those indicating name, league, and position.
+
 -   Every player, regardless of position, who made a game appearance appears in the dataset.
 
 ### Merging:
@@ -68,7 +73,7 @@ To be able to answer both research questions, we merged the two data sets and ap
 ## Final Dataset
 
 -   Description: The final dataset has a combination of the statistics relevant to determining correlation between bat speed and other quantitative variables as well as the variables of league and position. Additionally, the data set contains the first and last names of the 129 qualified players.
--   Purpose: This dataset streamlines the analysis of bat speed by only including statistics that are likely to be influenced by bat speed. 
+-   Purpose: This dataset streamlines the analysis of bat speed by only including statistics that are likely to be influenced by bat speed.
 -   Case: Each row represents an MLB player, with columns capturing their batting statistics, league, and position.
 
 ```{r}
@@ -97,6 +102,9 @@ batting_data <- mlb_data_raw %>%
     whiff_percent
   )
 
+# Prepare batting_data for merging with second dataset
+
+
 # Prepare batting_data for merging
 batting_data_for_combo <- batting_data %>%
   separate(`last_name, first_name`, into = c("LastName", "FirstName"), sep = ", ", remove = FALSE) %>%
@@ -109,15 +117,32 @@ batting_data_for_combo <- batting_data %>%
 # Read roster data
 roster_data <- read_csv("https://raw.githubusercontent.com/nwt5144/FinalProjectStat184/refs/heads/main/NlAlPos.csv")
 
+
 # Clean roster_data
-roster_data <- roster_data %>%
+roster_data1 <- roster_data %>%
   mutate(
-    Player = str_replace(Player, "\\*", ""), 
+   Player = str_replace(Player, "\\*", ""), 
+   Player = str_trim(Player)
+  )
+
+
+ roster_data2 <- roster_data1 %>%
+  mutate(
+    Player = str_replace(Player, "\\#", ""), 
     Player = str_trim(Player)
   )
 
+roster_data3 <- roster_data2 %>%
+  mutate(
+    Pos = str_replace(Pos, "\\*", ""), 
+    Pos = str_trim(Pos)
+  )
+
+roster_data4 <- roster_data3 %>%
+  distinct(Player, .keep_all = TRUE)
+
 # Keep only necessary columns
-roster_data_small <- roster_data %>%
+roster_data_small <- roster_data4 %>%
   select(Player, Lg, Pos)
 
 # Merge on Player
@@ -128,16 +153,15 @@ combined_data <- batting_data_for_combo %>%
 combined_data <- combined_data %>%
   mutate(
     Pos = str_replace_all(Pos, "\\*", ""),
-    Pos = str_extract(Pos, "\\d"),
+    Pos = str_extract(Pos, "."),
     Pos = case_when(
       Pos == "1" ~ "Pitcher",
       Pos %in% c("2", "3", "4", "5", "6") ~ "Infielder",
       Pos %in% c("7", "8", "9") ~ "Outfielder",
+      Pos == "D" ~ "DH",
       TRUE ~ NA_character_
     )
   )
-
-head(combined_data)
 
 ```
 
@@ -145,27 +169,30 @@ head(combined_data)
 
 The datasets used in this project adhere to the FAIR principles, which ensure data integrity and usability in research:
 
-**Add info on secondary source**
-
 ## Findable:
 
 -   The primary dataset was constructed using data on Baseball Savant -- a database accessible from most search engines.
+
 -   The attributes selected are among 50+ stats that can be easily found using Savant's in-site search system.
 
 -   The secondary dataset was constructed using data on Baseball Reference -- a database accessible from most search engines.
+
 -   The data table was found using navigation tabs on the site.
 
 ## Accessible:
 
 -   Savant is completely free and contains data on every pitch from 2015 onward (and limited information for other seasons as far back as 2008).
+
 -   Savant provides the option to download any collected data as a csv file.
 
 -   While Baseball Reference does have a paid version, the information needed for this analysis was free.
+
 -   Reference allows its tables to be downloaded as a csv file.
 
 ## Interoperable:
 
 -   As mentioned Savant's data can be formatted as a .csv file, a widely accepted format compatible with most programming languages.
+
 -   Although baseball terminology includes significant jargon, Savant includes a glossary that links to the official MLB.com page describing what each stat measures.
 
 -   Baseball Reference also has a glossary for the terminology used in its tables.
@@ -190,12 +217,13 @@ Next, we developed data visualizations to explore deeper relationships and distr
 
 -   Scatter plots: These helped us visualize how variables like runs, boundaries, balls faced, matches, batting average, batting strike rate, and boundaries percentage relate to batting strike rate, with batting styles distinguished by color.
 -   Correlation heatmap: This highlighted the strength of relationships between batting strike rate and other performance metrics.
+-   Bar graphs: These graphs compared the two leagues, American and National, on the average of their players' average swing speed and the total home runs hit. (Note that a few players played in both leagues during that year; they were put into their own category).
 
 The insights gained from these analyses form the foundation of our results and conclusions. Below, we detail the most critical tables and visualizations, along with the key insights they helped us derive.
 
 ## Batting Metrics Summary Table
 
-@battingStatsSummary provides a baseline for the level we can expect from these MLB players. While these summary statistics alone are not particularly enlightening, they set the background for future comparison. 
+@battingStatsSummary provides a baseline for the level we can expect from these MLB players. While these summary statistics alone are not particularly enlightening, they set the background for future comparison.
 
 ```{r}
 #| label: tbl1-battingStatsSummary
@@ -273,15 +301,43 @@ summary_table %>%
 Key Insights:
 
 -   In general, the mean is close to the median, which indicates that there are not significant skews in either direction.
--   Over the course of a season, the average player -- playing most regular season games -- hits about 22 home runs and walks about 57 times (3 of which are intentional). 
--   That same player has an average bat speed of 72 mph, launching the ball around 14 degrees (above the plane parallel to the ground) and missing the ball 24% of the time. 
+-   Over the course of a season, the average player -- playing most regular season games -- hits about 22 home runs and walks about 57 times (3 of which are intentional).
+-   That same player has an average bat speed of 72 mph, launching the ball around 14 degrees (above the plane parallel to the ground) and missing the ball 24% of the time.
 -   When making contact, that player can expect a hard hit ball (exit velocity of 95 mph) about 42% of the time.
 
-The table presents solid ground to build our future analyses off of.
+## Factors Influenced by Average Bat Speed
 
-## Factors Influenced by Average Bat Speed and Hard Hit %
+### Scatter Plots
 
-### Correlation Between Batting Metrics
+```{r}
+# Scatterplot: Home Run vs Average Swing Speed
+ggplot(batting_data, aes(x = avg_swing_speed, y = home_run)) +
+  geom_point(color = "blue", alpha = 0.7) +
+  labs(
+    title = "Home Runs vs Average Swing Speed",
+    x = "Average Swing Speed",
+    y = "Home Runs"
+  ) +
+  theme_minimal()
+```
+
+Key Insights:
+
+```{r}
+# Scatterplot: K% vs Hard Hit %
+ggplot(batting_data, aes(x = avg_swing_speed, y = k_percent)) +
+  geom_point(color = "red", alpha = 0.7) +
+  labs(
+    title = "Strikeout % vs avg_swing_speed%",
+    x = "avg_swing_speed",
+    y = "Strikeout %"
+  ) +
+  theme_minimal()
+```
+
+Key Insights:
+
+### Correlation Heatmap
 
 @correlationHeatmap shows the relative strength of how each batting statistics influences every other statistic. The diagonal will be perfect correlation, and the matrix as a whole is symmetric since metrics are mirrored on either axis. Note that there are no negative correlations between metrics.
 
@@ -320,131 +376,50 @@ ggplot(correlation_melt, aes(x = Var1, y = Var2, fill = value)) +
 
 Key Insights:
 
+## Influence of League and Position
 
-
-The heatmap lays the ground for deeper analysis of boundaries_percent and batting_avg, which are explored further in the scatter plots.
-
-### Scatter Plots (Without Categories)
-
-@homeRunVsAvgSwingSpeed
+### Bar Graphs
 
 ```{r}
-#| label: fig2-homeRunVsAvgSwingSpeed
+avg_swing_speed_league <- combined_data%>%
+  group_by(Lg) %>%
+  summarize(avg_swing_speed = mean(avg_swing_speed, na.rm = TRUE))
 
-# Scatterplot: Home Run vs Average Swing Speed
-ggplot(batting_data, aes(x = avg_swing_speed, y = home_run)) +
-  geom_point(color = "blue", alpha = 0.7) +
+
+# Bar Graph: Average Swing Speed by League
+ggplot(avg_swing_speed_league, aes(x = Lg, y = avg_swing_speed)) +
+  geom_col() +
   labs(
-    title = "Home Runs vs Average Swing Speed",
-    x = "Average Swing Speed",
+    title = "Average Swing Speed by League",
+    x = "League",
+    y = "Average Swing Speed"
+  ) +
+  theme_minimal()
+
+```
+
+Key Insights:
+
+```{r}
+hr_league <- combined_data %>%
+  group_by(Lg) %>%
+  summarize(hr = home_run)
+
+# Bar Graph: Total Home Runs by League
+ggplot(hr_league, aes(x = Lg, y = hr)) +
+  geom_col() +
+  labs(
+    title = "Total Home Runs by League",
+    x = "League",
     y = "Home Runs"
   ) +
   theme_minimal()
-ggsave("plots/swing_vs_hr.png", width = 7, height = 5)
 
 ```
 
 Key Insights:
 
-
-@kVsHardHit
-
-```{r}
-#| label: fig3-kVsHardHit
-
-# Scatterplot: K% vs Hard Hit %
-ggplot(batting_data, aes(x = k_percent, y = hard_hit_percent)) +
-  geom_point(color = "red", alpha = 0.7) +
-  labs(
-    title = "Strikeout % vs Hard Hit %",
-    x = "Strikeout %",
-    y = "Hard Hit %"
-  ) +
-  theme_minimal()
-```
-
-Key Insights:
-
-
-@kVsHomeRuns
-
-```{r}
-#| label: fig4-kVsHomeRuns
-
-# Scatterplot: K% vs Home Runs
-ggplot(batting_data, aes(x = k_percent, y = home_run)) +
-  geom_point(color = "red", alpha = 0.7) +
-  labs(
-    title = "Strikeout % vs Home Runs",
-    x = "Strikeout %",
-    y = "Home Runs"
-  ) +
-  theme_minimal()
-```
-
-Key Insights:
-
-
-@SwingSpeedVsWhiff
-
-```{r}
-#| label: fig5-SwingSpeedVsWhiff
-
-# Scatterplot: Swing Speed vs Whiff %
-ggplot(batting_data, aes(x = avg_swing_speed, y = whiff_percent)) +
-  geom_point(color = "red", alpha = 0.7) +
-  labs(
-    title = "Average Swing Speed vs Whiff %",
-    x = "Average Swing Speed",
-    y = "Whiff %"
-  ) +
-  theme_minimal()
-```
-
-Key Insights:
-
-
-## Influence of Batting Style on Batting Metrics
-
-### Scatter Plots (With Categories)
-
-@homeRunsVsWalksLeague
-
-```{r}
-#| label: fig6-homeRunsVsWalksLeague
-
-# Scatterplot: Home Runs vs Walks by League
-ggplot(combined_data, aes(x = walk, y = home_run, color = Lg)) +
-  geom_point(alpha = 0.7, size = 3) +
-  labs(
-    title = "Home Runs vs Walks by League",
-    x = "Walks",
-    y = "Home Runs"
-  ) +
-  theme_minimal()
-```
-
-Key Insights:
-
-
-@homeRunsVsHardHitPos
-
-```{r}
-#| label: fig7-homeRunsVsHardHitPos
-
-# Scatterplot: Home Runs vs Hard Hit % by Position Group
-ggplot(combined_data, aes(x = hard_hit_percent, y = home_run, color = Pos)) +
-  geom_point(alpha = 0.7, size = 3) +
-  labs(
-    title = "Home Runs vs Hard Hit % by Position",
-    x = "Hard Hit %",
-    y = "Home Runs"
-  ) +
-  theme_minimal()
-```
-
-Key Insights:
-
+### Scatterplot
 
 @homeRunsVsWalksLeaguePos
 
@@ -465,20 +440,13 @@ ggplot(combined_data, aes(x = walk, y = home_run, color = Pos)) +
 
 Key Insights:
 
-
-
-
-
 # Conclusion
-
-
 
 # References/Sources
 
-
-
 # Code Appendix
-```{r} 
+
+```{r}
 #| echo: TRUE 
 #| eval: FALSE
 ## Load Necessary Packages
@@ -619,4 +587,3 @@ summary_table %>%
 
 
 ```
-

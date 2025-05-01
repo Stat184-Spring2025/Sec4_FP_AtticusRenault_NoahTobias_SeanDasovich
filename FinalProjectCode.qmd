@@ -256,28 +256,28 @@ avg_swing_speed_league <- combined_data%>%
   group_by(Lg) %>%
   summarize(avg_swing_speed = mean(avg_swing_speed, na.rm = TRUE))
 
-avg_hr_league <- combined_data%>%
+hr_league <- combined_data%>%
   group_by(Lg) %>%
-  summarize(hr = mean(home_run, na.rm = TRUE))
+  summarize(hr = home_run)
 
 
 # Scatterplot: Home Runs vs Hard Hit % by Position Group
 ggplot(avg_swing_speed_league, aes(x = Lg, y = avg_swing_speed)) +
   geom_col() +
   labs(
-    title = "avg_swing_Speed vs. Home Runs",
-    x = "avg_swing_speed",
-    y = "Home Runs"
+    title = "Average Swing Speed by League",
+    x = "League",
+    y = "Average Swing Speed"
   ) +
   theme_minimal()
 
 
-# Scatterplot: Home Runs vs Hard Hit % by Position Group
-ggplot(avg_hr_league, aes(x = Lg, y = hr)) +
+# Bar Graph: Total Home Runs by League
+ggplot(hr_league, aes(x = Lg, y = hr)) +
   geom_col() +
   labs(
-    title = "avg_swing_Speed vs. Home Runs",
-    x = "avg_swing_speed",
+    title = "Total Home Runs by League",
+    x = "League",
     y = "Home Runs"
   ) +
   theme_minimal()

@@ -506,25 +506,23 @@ format: html
 
 ```{r}
 ## Load Necessary Packages
+#| echo: True
+#| eval: False
 library(tidyverse)
 library(dplyr)
 library(knitr)
 library(kableExtra)
 library(reshape2)
 library(ggplot2)
-```
 
 # Load In First Dataset
 
-```{r}
 # Step 1: Read CSV without column names
 mlb_data_raw <- read_csv("https://raw.githubusercontent.com/nwt5144/FinalProjectStat184/refs/heads/main/stats.csv", show_col_types = FALSE)
-```
 
 
 # Fix All Column Names In Original Dataset and Calculate Summary Statistics 
 
-```{r}
 # Create Summary Statistics Table ----
 batting_data <- mlb_data_raw %>%
   select(
@@ -595,12 +593,10 @@ summary_table <- batting_data %>%
       max(whiff_percent, na.rm = TRUE)
     )
   )
-```
 
 
 # Find and Show Summary Statistics for First Dataset
 
-```{r}
 # Display Summary Statistics Table ----
 summary_table %>%
   kable(
@@ -614,12 +610,11 @@ summary_table %>%
     font_size = 14
   ) %>%
   row_spec(0, bold = TRUE)  # Bold header row
-```
 
 
 # Prepare batting_data for merging with second dataset
 
-```{r}
+
 # Prepare batting_data for merging
 batting_data_for_combo <- batting_data %>%
   separate(`last_name, first_name`, into = c("LastName", "FirstName"), sep = ", ", remove = FALSE) %>%
@@ -679,14 +674,12 @@ combined_data <- combined_data %>%
   )
 
 head(combined_data)
-```
 
 
 
 
 # Scatterplot: Home Run vs Average Swing Speed
 
-```{r}
 # Scatterplot: Home Run vs Average Swing Speed
 ggplot(batting_data, aes(x = avg_swing_speed, y = home_run)) +
   geom_point(color = "blue", alpha = 0.7) +
@@ -696,12 +689,10 @@ ggplot(batting_data, aes(x = avg_swing_speed, y = home_run)) +
     y = "Home Runs"
   ) +
   theme_minimal()
-```
 
 
 # Scatterplot: K% vs Hard Hit %
 
-```{r}
 # Scatterplot: K% vs Hard Hit %
 ggplot(batting_data, aes(x = avg_swing_speed, y = k_percent)) +
   geom_point(color = "red", alpha = 0.7) +
@@ -711,13 +702,11 @@ ggplot(batting_data, aes(x = avg_swing_speed, y = k_percent)) +
     y = "Strikeout %"
   ) +
   theme_minimal()
-```
 
 
 
 # Correlation matrix after removing Player name columns
 
-```{r}
 # Compute correlation matrix after removing Player name columns
 correlation_matrix <- batting_data %>%
   select(-`last_name, first_name`) %>%  # drop non-numeric columns
@@ -745,13 +734,11 @@ ggplot(correlation_melt, aes(x = Var1, y = Var2, fill = value)) +
     x = "",
     y = ""
   )
-```
 
 
 
 # Scatterplot: Home Runs vs Hard Hit % by Position Group
 
-```{r}
 avg_swing_speed_league <- combined_data%>%
   group_by(Lg) %>%
   summarize(avg_swing_speed = mean(avg_swing_speed, na.rm = TRUE))
@@ -781,12 +768,10 @@ ggplot(hr_league, aes(x = Lg, y = hr)) +
     y = "Home Runs"
   ) +
   theme_minimal()
-```
 
 
 # Scatterplot: Home Runs vs Walks by League and Position
 
-```{r}
 # Scatterplot: Home Runs vs Walks by League and Position
 ggplot(combined_data, aes(x = walk, y = home_run, color = Pos)) +
   geom_point(alpha = 0.7, size = 2) +

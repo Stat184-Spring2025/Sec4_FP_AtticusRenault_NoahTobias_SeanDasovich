@@ -1,18 +1,20 @@
 1. Load and Inspect Data
-- Load the dataset into R.
+- Load main dataset (Batting statistics from Baseball Savant) into R.
+-Load the second dataset (Player league and position from Baseball Reference) into R.
 - Check the structure of the data: Look at column names and data types. 
 
 2. Clean the Data (check for missing values or outliers, filter out the data as required, rename columns as required)
 
-3. Merge the two datasets as per requirement.
+3. Merge the two datasets by player name to combine batting statistics with league and position info.
 
 4. Analysis
-- Summarize the data: Calculate mean, median, and standard deviation for batting_strike_rate, boundaries_percent, balls_faced, and batting_avg.
-- Check correlations: Use correlation coefficients to see how strongly each factor is related to batting_strike_rate.
+- Summarize the data: Calculate mean, median, minimum, maximum, and standard deviation for key variables (home_run, walk, strikeout %, intentional walk, average swing speed, launch angle, hard-hit %, whiff %).
+- Calculate the correlation matrix to examine how swing speed is related to other batting statistics.
+
 
 5. Create Visualizations
-- Scatter Plots, box plots, and histograms
-- Add appropriate titles, axis labels, and legends to all plots.
+- Create scatter plots to visualize relationships (e.g., swing speed vs home runs, swing speed vs strikeout %).
+- Create a correlation heatmap to show relationships between all variables.
 
 6. Report Writing
 - Use the QMD format to write the report. Include these sections:

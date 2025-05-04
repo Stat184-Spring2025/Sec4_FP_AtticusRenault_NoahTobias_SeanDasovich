@@ -40,13 +40,13 @@ We present the guidelines as a checklist in this file. This means that your team
   - [X] The owner of the repo should be `Stat184-Spring2025`. 
 - [X] Make sure that each team member has access to the repo.
 - [X] Come up with a topic and set of research questions your team will explore.
-- [ ] Make a plan for your work. We suggested putting together your work plan ASAP.
-- [ ] Locate appropriate data sources for your project.
-  - [ ] Your main data source may __not__ be one that we used in class. If you are interested in using data found in an R package, please consult with your instructor first.
-  - [ ] Supplementary data sources may come from anywhere.
-- [ ] Read in your data and perform any necessary data tidying, wrangling, and cleaning.
-- [ ] Conduct Exploratory Data Analysis.
-- [ ] Prepare a reproducible report.
+- [x] Make a plan for your work. We suggested putting together your work plan ASAP.
+- [x] Locate appropriate data sources for your project.
+  - [x] Your main data source may __not__ be one that we used in class. If you are interested in using data found in an R package, please consult with your instructor first.
+  - [x] Supplementary data sources may come from anywhere.
+- [x] Read in your data and perform any necessary data tidying, wrangling, and cleaning.
+- [x] Conduct Exploratory Data Analysis.
+- [x] Prepare a reproducible report.
   - [ ] Use a QMD file; the output type is PDF.
   - [ ] The report should be well organized with section headings.
   - [ ] Code should __only__ be found in a Code Appendix at the end for a PDF, not in the body of your report.
@@ -55,13 +55,13 @@ We present the guidelines as a checklist in this file. This means that your team
       ```{r codeAppend, ref.label=knitr::all_labels(), echo=TRUE, eval=FALSE}
       ```
 ````
-  - [ ] Describe the provenance of your data. That is, where did you get the data, who collected the data, for what purpose, who/what make up the cases.
-  - [ ] Explain how your data meet the FAIR and/or CARE Principles.
-  - [ ] Describe what attributes you'll focus your analysis on (mention if they are part of your data sets or if you created them out of your data sets).
-  - [ ] Create multiple data visualizations (tables and figures) that assist both the team and readers in understanding the data.
-    - [ ] Data visualizations should show a variety of your skills and geometries.
+  - [x] Describe the provenance of your data. That is, where did you get the data, who collected the data, for what purpose, who/what make up the cases.
+  - [x] Explain how your data meet the FAIR and/or CARE Principles.
+  - [x] Describe what attributes you'll focus your analysis on (mention if they are part of your data sets or if you created them out of your data sets).
+  - [x] Create multiple data visualizations (tables and figures) that assist both the team and readers in understanding the data.
+    - [x] Data visualizations should show a variety of your skills and geometries.
     - [ ] __Optional__: If your explorations and data make sense to do so, try creating a map.
-    - [ ] Data visualizations should be appropriately sized--not too small and not too big.
+    - [x] Data visualizations should be appropriately sized--not too small and not too big.
     - [ ] Figures and Tables should have appropriate captions and appropriately cross-referenced in the body of your report.
     - [ ] Your team must produce at least one table that is *not* a display of raw data or a listing of data cases or columns.
     - [ ] Your team must produce at least one plot/graph.

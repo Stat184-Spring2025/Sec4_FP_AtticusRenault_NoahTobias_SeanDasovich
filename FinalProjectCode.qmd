@@ -189,10 +189,10 @@ head(combined_data)
 ```{r}
 # Scatterplot: Home Run vs Average Swing Speed
 ggplot(batting_data, aes(x = avg_swing_speed, y = home_run)) +
-  geom_point(color = "blue", alpha = 0.7) +
+  geom_point(color = "blue", alpha = 1) +
   labs(
-    title = "Home Runs vs Average Swing Speed",
-    x = "Average Swing Speed",
+    title = "Home Runs vs Average Swing Speed (mph)",
+    x = "Average Swing Speed (mph)",
     y = "Home Runs"
   ) +
   theme_minimal()
@@ -204,11 +204,11 @@ ggplot(batting_data, aes(x = avg_swing_speed, y = home_run)) +
 ```{r}
 # Scatterplot: K% vs Hard Hit %
 ggplot(batting_data, aes(x = avg_swing_speed, y = k_percent)) +
-  geom_point(color = "red", alpha = 0.7) +
+  geom_point(color = "red", alpha = 1) +
   labs(
-    title = "Strikeout % vs avg_swing_speed%",
-    x = "avg_swing_speed",
-    y = "Strikeout %"
+    title = "Strikeout Percentage vs Average Swing Speed (mph)",
+    x = "Average Swing Speed (mph)",
+    y = "Strikeout Percentage"
   ) +
   theme_minimal()
 ```
@@ -218,33 +218,58 @@ ggplot(batting_data, aes(x = avg_swing_speed, y = k_percent)) +
 # Correlation matrix after removing Player name columns
 
 ```{r}
-# Compute correlation matrix after removing Player name columns
-correlation_matrix <- batting_data %>%
-  select(-`last_name, first_name`) %>%  # drop non-numeric columns
-  cor(use = "complete.obs")
+# raw column names
+column_names <- c(
+  "home_run",
+  "walk",
+  "k_percent",
+  "b_intent_walk",
+  "avg_swing_speed",
+  "launch_angle_avg",
+  "hard_hit_percent",
+  "whiff_percent"
+)
 
-# Melt correlation matrix into long format
-correlation_melt <- melt(correlation_matrix)
+# map each one to a ‐readable label
+full_names <- setNames(
+  c(
+    "Home Runs",
+    "Walks",
+    "Strikeout Percentage",
+    "Intentional Walk Percentage",
+    "Average Swing Speed (mph)",
+    "Average Launch Angle (°)",
+    "Hard-Hit Percentage",
+    "Whiff Percentage"
+  ),
+  column_names
+)
 
-# Plot heatmap
+
+# heatmap, swapping in the labels
 ggplot(correlation_melt, aes(x = Var1, y = Var2, fill = value)) +
   geom_tile(color = "white") +
   scale_fill_gradient2(
-    low = "blue", 
-    high = "red", 
-    mid = "white", 
-    midpoint = 0, 
-    limit = c(-1, 1), 
-    space = "Lab", 
-    name = "Correlation"
+    low      = "blue",
+    mid      = "white",
+    high     = "red",
+    midpoint = 0,
+    limit    = c(-1, 1),
+    space    = "Lab",
+    name     = "Correlation"
   ) +
+  scale_x_discrete(labels = full_names) +
+  scale_y_discrete(labels = full_names) +
   theme_minimal() +
-  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
+  theme(
+    axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)
+  ) +
   labs(
     title = "Correlation Heatmap",
-    x = "",
-    y = ""
+    x     = NULL,
+    y     = NULL
   )
+
 ```
 
 
@@ -267,7 +292,7 @@ ggplot(avg_swing_speed_league, aes(x = Lg, y = avg_swing_speed)) +
   labs(
     title = "Average Swing Speed by League",
     x = "League",
-    y = "Average Swing Speed"
+    y = "Average Swing Speed (mph)"
   ) +
   theme_minimal()
 
@@ -289,7 +314,7 @@ ggplot(hr_league, aes(x = Lg, y = hr)) +
 ```{r}
 # Scatterplot: Home Runs vs Walks by League and Position
 ggplot(combined_data, aes(x = walk, y = home_run, color = Pos)) +
-  geom_point(alpha = 0.7, size = 2) +
+  geom_point(alpha = 1, size = 2) +
   facet_wrap(~ Lg) +
   labs(
     title = "Home Runs vs Walks by League and Position",

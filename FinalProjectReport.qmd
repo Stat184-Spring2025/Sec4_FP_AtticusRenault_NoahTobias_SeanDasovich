@@ -72,7 +72,7 @@ To be able to answer both research questions, we merged the two data sets and ap
 
 ## Final Dataset
 
--   Description: The final dataset has a combination of the statistics relevant to determining correlation between bat speed and other quantitative variables as well as the variables of league and position. Additionally, the data set contains the first and last names of the 129 qualified players.
+-   Description: The final dataset has a combination of the statistics relevant to determining correlation between bat speed and other quantitative variables as well as determining relationships between these metrics and league and position. Additionally, the data set contains the first and last names of the 129 qualified players.
 -   Purpose: This dataset streamlines the analysis of bat speed by only including statistics that are likely to be influenced by bat speed.
 -   Case: Each row represents an MLB player, with columns capturing their batting statistics, league, and position.
 
@@ -303,7 +303,7 @@ Key Insights:
 -   In general, the mean is close to the median, which indicates that there are not significant skews in either direction.
 -   Over the course of a season, the average player -- playing most regular season games -- hits about 22 home runs and walks about 57 times (3 of which are intentional).
 -   That same player has an average bat speed of 72 mph, launching the ball around 14 degrees (above the plane parallel to the ground) and missing the ball 24% of the time.
--   When making contact, that player can expect a hard hit ball (exit velocity of 95 mph) about 42% of the time.
+-   When making contact, that player can expect a hard hit ball (exit velocity of 95+ mph) about 42% of the time.
 
 ## Factors Influenced by Average Bat Speed
 
@@ -329,9 +329,9 @@ ggplot(batting_data, aes(x = avg_swing_speed, y = home_run)) +
 
 -   There is a moderate, positive correlation between average swing speed and home runs hit by qualified MLB batters.
 
--   The two 2024 MVPs, Aaron Judge and Shohei Ohtani, are the two cases with the most home runs (though not the highest average swing speed).
-
 -   The biggest cluster is around a swing speed in the low 70s and around 20 home runs.
+
+-   In case you were wondering, the two 2024 MVPs, Aaron Judge and Shohei Ohtani, are the two cases with the most home runs (though not the highest average swing speed).
 
 @kvsAvgSwingSpeed is another scatterplot, this time comparing average swing speed with a batter's strikeout % (the percent of plate appearances the result in a strikeout). With more emphasis on bigger hits, this visualization can determine if there is a trade-off required.
 
@@ -351,7 +351,7 @@ ggplot(batting_data, aes(x = avg_swing_speed, y = k_percent)) +
 
 **Key Insights:**
 
--   There is a slight positive correlation between average swing speed and strikeout % but the points are more spread out than in the previous scatterplot. Overall, there does not seem to be a significant trade-off for increasing bat speed.
+-   There is a slight positive correlation between average swing speed and strikeout % but the points are more spread out than in the previous scatterplot. Overall, there seems to be somewhat of a trade-off for increasing bat speed.
 
 -   A significant factor not captured by this plot is a batter's "plate discipline", essentially how likely they are to swing at bad pitches. Batter's with high swing speed are not necessarily less selective than batter's with low swing speed.
 
@@ -396,9 +396,9 @@ ggplot(correlation_melt, aes(x = Var1, y = Var2, fill = value)) +
 
 **Key Insights:**
 
--   Apart from the one-to-one correlations, the strongest relationships between attributes are between strikeout % and whiff % and also between average swing speed and hard hit %.
+-   Apart from the one-to-one correlations, the strongest correlations between attributes are between strikeout % and whiff % and also between average swing speed and hard hit %.
 
--   The areas of little to no correlation are between strikeout % and intentional walks, average launch angle and average swing speed, and hard hit % and average launch angle. This is important considering average launch angle is a metric commonly associated with home runs.
+-   The areas of little to no correlation are between strikeout % and intentional walks, average launch angle and average swing speed, and hard hit % and average launch angle. This is interesting considering average launch angle is a metric commonly associated with home runs, though too high of a launch angle will result in a pop-up.
 
 -   There are no negative correlations between variables; they all generally increase with respect to each other.
 
@@ -434,7 +434,7 @@ ggplot(avg_swing_speed_league, aes(x = Lg, y = avg_swing_speed)) +
 
 -   For both leagues, the average swing speed was a little over 70 mph. This is very similar to the overall MLB average swing speed of 71.92 mph found in @battingStatsSummary.
 
-@homeRunsLeague looks at the total number of home runs hit by players in the American and National Leagues.
+@homeRunsLeague looks at the average number of home runs hit per batter in the American and National Leagues.
 
 ```{r}
 #| label: fig5-homeRunsLeague
@@ -443,13 +443,13 @@ hr_league <- combined_data %>%
   group_by(Lg) %>%
   summarize(hr = mean(home_run, na.rm = TRUE))
 
-# Bar Graph: Average Home Runs by League
+# Bar Graph: Average Home Runs Per Batter by League
 ggplot(hr_league, aes(x = Lg, y = hr)) +
   geom_col() +
   labs(
-    title = "Average Home Runs by League",
+    title = "Average Home Runs Per Batter by League",
     x = "League",
-    y = "Average Home Runs"
+    y = "Average Home Runs Per Batter"
   ) +
   theme_minimal()
 
@@ -465,7 +465,7 @@ ggplot(hr_league, aes(x = Lg, y = hr)) +
 
 ### Scatterplot
 
-@homeRunsVsWalksLeaguePos displays a visualization divided into the three league designations with points plotted by walks and homeruns. The points are color coded by the primary position of the MLB player.
+@homeRunsVsWalksLeaguePos displays a visualization divided into the three league designations with points plotted by walks and home runs. The points are color coded by the primary position of the MLB player.
 
 ```{r}
 #| label: fig6-homeRunsVsWalksLeaguePos
@@ -488,20 +488,27 @@ ggplot(combined_data, aes(x = walk, y = home_run, color = Pos)) +
 
 -   The AL and NL distributions have similar shapes with each having high potential outliers. The National League distribution does have a few more players with low home run counts but is also densely populated around the average of the dataset.
 
--   The positions "Infielder" and "Outfielder" are mostly evenly dispersed. On the whole, there are more infielders than outfielders by virtue of the layout of a baseball field.
+-   The positions "Infielder" and "Outfielder" are evenly dispersed in terms of walks, but there tends to be more infielders on the higher end of home runs. It's worth noting that there are more infielders than outfielders by virtue of the layout of a baseball field.
 
--   While there are not enough DHs to be significant, it is interesting to note that the National League's potential upper outliers are all DHs, and the American League's potential upper outliers are outfielders.
+-   While there are not enough DHs to be significant, it is interesting to note that the National League's potential upper outliers are all DHs, and the American League's potential upper outliers are all outfielders.
 
 # Conclusion
+
+Concerning bat speed's influence on other metrics for qualified MLB batters in the 2024 season, there are positive correlations between bat speed and home runs (@homeRunvsAvgSwingSpeed) and bat speed and strikeout % (@kvsAvgSwingSpeed). The distribution for bat speed vs. strikeout %, however, is more spread, indicating a weaker correlation. @correlationHeatmap explores more correlations concerning bat speed and additionally distinguishes the relationships between other batting metrics. Notable positive correlations include those between strikeout % and whiff % as well as between average swing speed and hard hit %.
+
+With respect to league and position for qualified batters in the 2024 MLB season, there is no relationship between the a batter's league and his average bat speed or a batter's league and his average home runs as displayed by @avgSwingSpeedLeague and @homeRunsLeague. 
+
+Additionally, @homeRunsVsWalksLeaguePos indicates that there is not a relationship between walks and the position one plays. There may be a relation between position and home runs hit, but the sample size might need to be expanded before making that conclusion.
+
 
 # References/Sources
 
 # Code Appendix
 
 ```{r}
-#| echo: TRUE 
-#| eval: FALSE
 ## Load Necessary Packages
+#| echo: True
+#| eval: False
 library(tidyverse)
 library(dplyr)
 library(knitr)
@@ -509,10 +516,15 @@ library(kableExtra)
 library(reshape2)
 library(ggplot2)
 
-# Step 1: Read original data CSV without column names
+# Load In First Dataset
+
+# Step 1: Read CSV without column names
 mlb_data_raw <- read_csv("https://raw.githubusercontent.com/nwt5144/FinalProjectStat184/refs/heads/main/stats.csv", show_col_types = FALSE)
 
-# Select columns of interest
+
+# Fix All Column Names In Original Dataset and Calculate Summary Statistics 
+
+# Create Summary Statistics Table ----
 batting_data <- mlb_data_raw %>%
   select(
     'last_name, first_name',
@@ -526,47 +538,7 @@ batting_data <- mlb_data_raw %>%
     whiff_percent
   )
 
-# Prepare batting_data for merging
-batting_data_for_combo <- batting_data %>%
-  separate(`last_name, first_name`, into = c("LastName", "FirstName"), sep = ", ", remove = FALSE) %>%
-  select(-`last_name, first_name`) %>%
-  mutate(
-    Player = paste(FirstName, LastName),
-    Player = str_trim(Player)
-  )
 
-# Read roster data
-roster_data <- read_csv("https://raw.githubusercontent.com/nwt5144/FinalProjectStat184/refs/heads/main/NlAlPos.csv")
-
-# Clean roster_data
-roster_data <- roster_data %>%
-  mutate(
-    Player = str_replace(Player, "\\*", ""), 
-    Player = str_trim(Player)
-  )
-
-# Keep only necessary columns
-roster_data_small <- roster_data %>%
-  select(Player, Lg, Pos)
-
-# Merge on Player
-combined_data <- batting_data_for_combo %>%
-  left_join(roster_data_small, by = "Player")
-
-# Clean and group Pos
-combined_data <- combined_data %>%
-  mutate(
-    Pos = str_replace_all(Pos, "\\*", ""),
-    Pos = str_extract(Pos, "\\d"),
-    Pos = case_when(
-      Pos == "1" ~ "Pitcher",
-      Pos %in% c("2", "3", "4", "5", "6") ~ "Infielder",
-      Pos %in% c("7", "8", "9") ~ "Outfielder",
-      TRUE ~ NA_character_
-    )
-  )
-
-head(combined_data)
 
 # Calculate summary statistics
 summary_table <- batting_data %>%
@@ -590,7 +562,7 @@ summary_table <- batting_data %>%
       mean(launch_angle_avg, na.rm = TRUE),
       mean(hard_hit_percent, na.rm = TRUE), 
       mean(whiff_percent, na.rm = TRUE)
-    ),    
+    ),
     Median = c(
       median(home_run, na.rm = TRUE), 
       median(walk, na.rm = TRUE), 
@@ -623,6 +595,9 @@ summary_table <- batting_data %>%
     )
   )
 
+
+# Find and Show Summary Statistics for First Dataset
+
 # Display Summary Statistics Table ----
 summary_table %>%
   kable(
@@ -638,4 +613,174 @@ summary_table %>%
   row_spec(0, bold = TRUE)  # Bold header row
 
 
+# Prepare batting_data for merging with second dataset
+
+
+# Prepare batting_data for merging
+batting_data_for_combo <- batting_data %>%
+  separate(`last_name, first_name`, into = c("LastName", "FirstName"), sep = ", ", remove = FALSE) %>%
+  select(-`last_name, first_name`) %>%
+  mutate(
+    Player = paste(FirstName, LastName),
+    Player = str_trim(Player)
+  )
+
+# Read roster data
+roster_data <- read_csv("https://raw.githubusercontent.com/nwt5144/FinalProjectStat184/refs/heads/main/NlAlPos.csv")
+
+
+# Clean roster_data
+roster_data1 <- roster_data %>%
+  mutate(
+   Player = str_replace(Player, "\\*", ""), 
+   Player = str_trim(Player)
+  )
+
+
+ roster_data2 <- roster_data1 %>%
+  mutate(
+    Player = str_replace(Player, "\\#", ""), 
+    Player = str_trim(Player)
+  )
+
+roster_data3 <- roster_data2 %>%
+  mutate(
+    Pos = str_replace(Pos, "\\*", ""), 
+    Pos = str_trim(Pos)
+  )
+
+roster_data4 <- roster_data3 %>%
+  distinct(Player, .keep_all = TRUE)
+
+# Keep only necessary columns
+roster_data_small <- roster_data4 %>%
+  select(Player, Lg, Pos)
+
+# Merge on Player
+combined_data <- batting_data_for_combo %>%
+  left_join(roster_data_small, by = "Player")
+
+# Clean and group Pos
+combined_data <- combined_data %>%
+  mutate(
+    Pos = str_replace_all(Pos, "\\*", ""),
+    Pos = str_extract(Pos, "."),
+    Pos = case_when(
+      Pos == "1" ~ "Pitcher",
+      Pos %in% c("2", "3", "4", "5", "6") ~ "Infielder",
+      Pos %in% c("7", "8", "9") ~ "Outfielder",
+      Pos == "D" ~ "DH",
+      TRUE ~ NA_character_
+    )
+  )
+
+head(combined_data)
+
+
+
+
+# Scatterplot: Home Run vs Average Swing Speed
+
+# Scatterplot: Home Run vs Average Swing Speed
+ggplot(batting_data, aes(x = avg_swing_speed, y = home_run)) +
+  geom_point(color = "blue", alpha = 0.7) +
+  labs(
+    title = "Home Runs vs Average Swing Speed",
+    x = "Average Swing Speed",
+    y = "Home Runs"
+  ) +
+  theme_minimal()
+
+
+# Scatterplot: K% vs Hard Hit %
+
+# Scatterplot: K% vs Hard Hit %
+ggplot(batting_data, aes(x = avg_swing_speed, y = k_percent)) +
+  geom_point(color = "red", alpha = 0.7) +
+  labs(
+    title = "Strikeout % vs avg_swing_speed%",
+    x = "avg_swing_speed",
+    y = "Strikeout %"
+  ) +
+  theme_minimal()
+
+
+
+# Correlation matrix after removing Player name columns
+
+# Compute correlation matrix after removing Player name columns
+correlation_matrix <- batting_data %>%
+  select(-`last_name, first_name`) %>%  # drop non-numeric columns
+  cor(use = "complete.obs")
+
+# Melt correlation matrix into long format
+correlation_melt <- melt(correlation_matrix)
+
+# Plot heatmap
+ggplot(correlation_melt, aes(x = Var1, y = Var2, fill = value)) +
+  geom_tile(color = "white") +
+  scale_fill_gradient2(
+    low = "blue", 
+    high = "red", 
+    mid = "white", 
+    midpoint = 0, 
+    limit = c(-1, 1), 
+    space = "Lab", 
+    name = "Correlation"
+  ) +
+  theme_minimal() +
+  theme(axis.text.x = element_text(angle = 45, vjust = 1, hjust = 1)) +
+  labs(
+    title = "Correlation Heatmap",
+    x = "",
+    y = ""
+  )
+
+
+
+# Scatterplot: Home Runs vs Hard Hit % by Position Group
+
+avg_swing_speed_league <- combined_data%>%
+  group_by(Lg) %>%
+  summarize(avg_swing_speed = mean(avg_swing_speed, na.rm = TRUE))
+
+hr_league <- combined_data%>%
+  group_by(Lg) %>%
+  summarize(hr = home_run)
+
+
+# Scatterplot: Home Runs vs Hard Hit % by Position Group
+ggplot(avg_swing_speed_league, aes(x = Lg, y = avg_swing_speed)) +
+  geom_col() +
+  labs(
+    title = "Average Swing Speed by League",
+    x = "League",
+    y = "Average Swing Speed"
+  ) +
+  theme_minimal()
+
+
+# Bar Graph: Total Home Runs by League
+ggplot(hr_league, aes(x = Lg, y = hr)) +
+  geom_col() +
+  labs(
+    title = "Total Home Runs by League",
+    x = "League",
+    y = "Home Runs"
+  ) +
+  theme_minimal()
+
+
+# Scatterplot: Home Runs vs Walks by League and Position
+
+# Scatterplot: Home Runs vs Walks by League and Position
+ggplot(combined_data, aes(x = walk, y = home_run, color = Pos)) +
+  geom_point(alpha = 0.7, size = 2) +
+  facet_wrap(~ Lg) +
+  labs(
+    title = "Home Runs vs Walks by League and Position",
+    x = "Walks",
+    y = "Home Runs"
+  ) +
+  theme_minimal()
 ```

@@ -33,15 +33,15 @@ For this project, we used two datasets. The primary dataset is most helpful in a
 
 ## Primary Dataset
 
--   Source: Baseball Savant (https://baseballsavant.mlb.com/)
--   Description: Baseball Savant, powered by Statcast MLB, allows for customized data tables which can then be converted to csv files. We created a custom table that includes all qualified (at least 502 plate appearances) batters from the 2024 regular season. Our custom table includes 19 columns and 129 rows.
+-   Source: Baseball Savant [@baseballsavant]
+-   Description: Baseball Savant, powered by Statcast MLB, allows for customized data tables which can then be converted to csv files [@baseballsavant]. We created a custom table that includes all qualified (at least 502 plate appearances) batters from the 2024 regular season. Our custom table includes 19 columns and 129 rows.
 -   Purpose: This dataset was used to gather bat speed and related attributes for MLB batters from the 2024 regular season. The information in this table was useful for determining correlation between bat speed and the other commonly collected baseball statistics (hard hit %, strikeout %, etc.)
 -   Cases: Each row represents an MLB batter, with columns describing various batting statistics.
 
 ## Secondary Dataset
 
--   Source: Baseball Reference (https://www.baseball-reference.com/)
--   Description: Baseball Reference is part of an independent encyclopedia of sports statistics. It provides a lot of the same information as Baseball Savant but is better for finding individual player information. Baseball Reference also has tables of aggregate season data from which we could find batters' league (American or National) and position (infield, outfield, neither, both). The original table for 2024 has 34 columns and 741 rows.
+-   Source: Baseball Reference [@baseballreference]
+-   Description: Baseball Reference is part of an independent encyclopedia of sports statistics [@baseballreference]. It provides a lot of the same information as Baseball Savant but is better for finding individual player information. Baseball Reference also has tables of aggregate season data from which we could find batters' league (American or National) and position (infield, outfield, neither, both). The original table for 2024 has 34 columns and 741 rows.
 -   Purpose: This dataset was used to collect the league designation (AL or NL) and position for each MLB player in the 2024 regular season. This information is used to group players in data visualizations by common characteristics.
 -   Cases: Each row represents an MLB player, not necessarily batter, who made an appearance in 2024 with the columns describing various batting statistics.
 
@@ -51,7 +51,7 @@ To be able to answer both research questions, we merged the two data sets and ap
 
 ### Filtering and Cleaning
 
--   For the Savant dataset, the bulk of filtering and cleaning had been done prior to reading the csv into the environment. The only adjustment was splitting first name and last name.
+-   For the Savant dataset, the bulk of filtering and cleaning had been done prior to reading the csv into the environment [@baseballsavant]. The only adjustment was splitting first name and last name.
 
 -   The full quantitative variable list: home runs, strikeout %, walk %, intentional walks, average bat speed, launch angle, hard hit %, and whiff %.
 
@@ -59,7 +59,7 @@ To be able to answer both research questions, we merged the two data sets and ap
 
 -   Some unrelated columns were removed like player_id and year.
 
--   For the Reference dataset, extra characters were cleaned out of the players' names.
+-   For the Reference dataset, extra characters were cleaned out of the players' names [@baseballreference].
 
 -   Every column was removed except those indicating name, league, and position.
 
@@ -173,31 +173,31 @@ The datasets used in this project adhere to the FAIR principles, which ensure da
 
 ## Findable:
 
--   The primary dataset was constructed using data on Baseball Savant -- a database accessible from most search engines.
+-   The primary dataset was constructed using data on Baseball Savant [@baseballsavant] -- a database accessible from most search engines.
 
 -   The attributes selected are among 50+ stats that can be easily found using Savant's in-site search system.
 
--   The secondary dataset was constructed using data on Baseball Reference -- a database accessible from most search engines.
+-   The secondary dataset was constructed using data on Baseball Reference [@baseballreference] -- a database accessible from most search engines.
 
 -   The data table was found using navigation tabs on the site.
 
 ## Accessible:
 
--   Savant is completely free and contains data on every pitch from 2015 onward (and limited information for other seasons as far back as 2008).
+-   Savant is completely free and contains data on every pitch from 2015 onward [@baseballsavant] (and limited information for other seasons as far back as 2008).
 
 -   Savant provides the option to download any collected data as a csv file.
 
--   While Baseball Reference does have a paid version, the information needed for this analysis was free.
+-   While Baseball Reference does have a paid version, the information needed for this analysis was free [@baseballreference].
 
 -   Reference allows its tables to be downloaded as a csv file.
 
 ## Interoperable:
 
--   As mentioned Savant's data can be formatted as a .csv file, a widely accepted format compatible with most programming languages.
+-   As mentioned Savant's data can be formatted as a .csv file [@baseballsavant], a widely accepted format compatible with most programming languages.
 
 -   Although baseball terminology includes significant jargon, Savant includes a glossary that links to the official MLB.com page describing what each stat measures.
 
--   Baseball Reference also has a glossary for the terminology used in its tables.
+-   Baseball Reference also has a glossary for the terminology used in its tables [@baseballreference].
 
 ## Reusable:
 
@@ -503,8 +503,6 @@ With respect to league and position for qualified batters in the 2024 MLB season
 Additionally, @homeRunsVsWalksLeaguePos indicates that there is not a relationship between walks and the position one plays. There may be a relation between position and home runs hit, but the sample size might need to be expanded before making that conclusion.
 
 
-# References/Sources
-
 # Code Appendix
 
 ```{r}
@@ -782,3 +780,4 @@ ggplot(combined_data, aes(x = walk, y = home_run, color = Pos)) +
   ) +
   theme_minimal()
 ```
+# References

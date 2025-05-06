@@ -225,10 +225,10 @@ The insights gained from these analyses form the foundation of our results and c
 
 ## Batting Metrics Summary Table
 
-@battingStatsSummary provides a baseline for the level we can expect from these MLB players. While these summary statistics alone are not particularly enlightening, they set the background for future comparison.
+@tbl-battingStatsSummary provides a baseline for the level we can expect from these MLB players. While these summary statistics alone are not particularly enlightening, they set the background for future comparison.
 
 ```{r}
-#| label: tbl1-battingStatsSummary
+#| label: tbl-battingStatsSummary
 
 # Calculate summary statistics
 summary_table <- batting_data %>%
@@ -313,10 +313,10 @@ Our analysis of bat speed continues with closer look at potential correlations b
 
 ### Scatter Plots
 
-@homeRunvsAvgSwingSpeed visualizes the correlation between average bat speed (interchangeable with average swing speed) and home runs hit by qualified MLB batters. Home runs are increasingly emphasized in modern baseball, so this scatterplot could shed some light on how these metrics are related.
+@fig-homeRunvsAvgSwingSpeed visualizes the correlation between average bat speed (interchangeable with average swing speed) and home runs hit by qualified MLB batters. Home runs are increasingly emphasized in modern baseball, so this scatterplot could shed some light on how these metrics are related.
 
 ```{r}
-#| label: fig1-homeRunvsAvgSwingSpeed
+#| label: fig-homeRunvsAvgSwingSpeed
 
 # Scatterplot: Home Run vs Average Swing Speed
 ggplot(batting_data, aes(x = avg_swing_speed, y = home_run)) +
@@ -337,10 +337,10 @@ ggplot(batting_data, aes(x = avg_swing_speed, y = home_run)) +
 
 -   In case you were wondering, the two 2024 MVPs, Aaron Judge and Shohei Ohtani, are the two cases with the most home runs (though not the highest average swing speed).
 
-@kvsAvgSwingSpeed is another scatterplot, this time comparing average swing speed with a batter's strikeout % (the percent of plate appearances the result in a strikeout). With more emphasis on bigger hits, this visualization can determine if there is a trade-off required.
+@fig-kvsAvgSwingSpeed is another scatterplot, this time comparing average swing speed with a batter's strikeout % (the percent of plate appearances the result in a strikeout). With more emphasis on bigger hits, this visualization can determine if there is a trade-off required.
 
 ```{r}
-#| label: fig2-kvsAvgSwingSpeed
+#| label: fig-kvsAvgSwingSpeed
 
 # Scatterplot: K% vs average swing speed
 ggplot(batting_data, aes(x = avg_swing_speed, y = k_percent)) +
@@ -363,13 +363,25 @@ ggplot(batting_data, aes(x = avg_swing_speed, y = k_percent)) +
 
 ### Correlation Heatmap
 
-@correlationHeatmap shows the relative strength of how each batting statistics influences every other statistic. The diagonal will be perfect correlation, and the matrix as a whole is symmetric since metrics are mirrored on either axis.
+@fig-correlationHeatmap shows the relative strength of how each batting statistics influences every other statistic. The diagonal will be perfect correlation, and the matrix as a whole is symmetric since metrics are mirrored on either axis.
 
 ```{r}
-#| label: fig3-correlationHeatmap
+#| label: fig-correlationHeatmap
 
+# Give attributes meaningful names
+batting_data_renamed <- batting_data %>%
+  rename(
+    "Home Runs" = home_run,
+    "Walks" = walk,
+    "Strikeout %" = k_percent,
+    "Intentional Walks" = b_intent_walk,
+    "Avg Swing Speed (mph)" = avg_swing_speed,
+    "Avg Launch Angle" = launch_angle_avg,
+    "Hard-Hit %" = hard_hit_percent,
+    "Whiff %" = whiff_percent
+  )
 # Compute correlation matrix after removing Player name columns
-correlation_matrix <- batting_data %>%
+correlation_matrix <- batting_data_renamed %>%
   select(-`last_name, first_name`) %>%  # drop non-numeric columns
   cor(use = "complete.obs")
 
@@ -412,10 +424,10 @@ Now that we have examined relationships between batting metrics, we will expand 
 
 ### Bar Graphs
 
-@avgSwingSpeedLeague breaks down average swing speed by league. The "2LG" category is players who played in both leagues in 2024. The sample size for that is only 5, so it is not statistically significant.
+@fig-avgSwingSpeedLeague breaks down average swing speed by league. The "2LG" category is players who played in both leagues in 2024. The sample size for that is only 5, so it is not statistically significant.
 
 ```{r}
-#| label: fig4-avgSwingSpeedLeague
+#| label: fig-avgSwingSpeedLeague
 
 avg_swing_speed_league <- combined_data %>%
   group_by(Lg) %>%
@@ -438,12 +450,12 @@ ggplot(avg_swing_speed_league, aes(x = Lg, y = avg_swing_speed)) +
 
 -   The average of each league's batter's average swing speed is approximately the same. There is essentially no difference between the leagues as far as swing speed is concerned.
 
--   For both leagues, the average swing speed was a little over 70 mph. This is very similar to the overall MLB average swing speed of 71.92 mph found in @battingStatsSummary.
+-   For both leagues, the average swing speed was a little over 70 mph. This is very similar to the overall MLB average swing speed of 71.92 mph found in @tbl-battingStatsSummary.
 
-@homeRunsLeague looks at the average number of home runs hit per batter in the American and National Leagues.
+@fig-homeRunsLeague looks at the average number of home runs hit per batter in the American and National Leagues.
 
 ```{r}
-#| label: fig5-homeRunsLeague
+#| label: fig-homeRunsLeague
 
 hr_league <- combined_data %>%
   group_by(Lg) %>%
@@ -465,16 +477,16 @@ ggplot(hr_league, aes(x = Lg, y = hr)) +
 
 -   Like the previous graph, there is little difference between the American League and National League with regard to the average per player home runs hit.
 
--   The American League has a slight edge but both leagues rest around 22 home runs per player. This is similar to the MLB-wide average of 21.67 in @battingStatsSummary.
+-   The American League has a slight edge but both leagues rest around 22 home runs per player. This is similar to the MLB-wide average of 21.67 in @tbl-battingStatsSummary.
 
 -   League does not appear to be an indicator of a batter's home run production.
 
 ### Scatterplot
 
-@homeRunsVsWalksLeaguePos displays a visualization divided into the three league designations with points plotted by walks and home runs. The points are color coded by the primary position of the MLB player.
+@fig-homeRunsVsWalksLeaguePos displays a visualization divided into the three league designations with points plotted by walks and home runs. The points are color coded by the primary position of the MLB player.
 
 ```{r}
-#| label: fig6-homeRunsVsWalksLeaguePos
+#| label: fig-homeRunsVsWalksLeaguePos
 
 # Scatterplot: Home Runs vs Walks by League and Position
 ggplot(combined_data, aes(x = walk, y = home_run, color = Pos)) +
@@ -500,11 +512,11 @@ ggplot(combined_data, aes(x = walk, y = home_run, color = Pos)) +
 
 # Conclusion
 
-Concerning bat speed's influence on other metrics for qualified MLB batters in the 2024 season, there are positive correlations between bat speed and home runs (@homeRunvsAvgSwingSpeed) and bat speed and strikeout % (@kvsAvgSwingSpeed). The distribution for bat speed vs. strikeout %, however, is more spread, indicating a weaker correlation. @correlationHeatmap explores more correlations concerning bat speed and additionally distinguishes the relationships between other batting metrics. Notable positive correlations include those between strikeout % and whiff % as well as between average swing speed and hard hit %.
+Concerning bat speed's influence on other metrics for qualified MLB batters in the 2024 season, there are positive correlations between bat speed and home runs (@fig-homeRunvsAvgSwingSpeed) and bat speed and strikeout % (@fig-kvsAvgSwingSpeed). The distribution for bat speed vs. strikeout %, however, is more spread, indicating a weaker correlation. @fig-correlationHeatmap explores more correlations concerning bat speed and additionally distinguishes the relationships between other batting metrics. Notable positive correlations include those between strikeout % and whiff % as well as between average swing speed and hard hit %.
 
-With respect to league and primary position for qualified batters in the 2024 MLB season, there is no relationship between the a batter's league and his average bat speed or a batter's league and his average home runs as displayed by @avgSwingSpeedLeague and @homeRunsLeague. 
+With respect to league and primary position for qualified batters in the 2024 MLB season, there is no relationship between the a batter's league and his average bat speed or a batter's league and his average home runs as displayed by @fig-avgSwingSpeedLeague and @fig-homeRunsLeague. 
 
-Additionally, @homeRunsVsWalksLeaguePos indicates that there is not a relationship between walks and the position one plays. There may be a relation between position and home runs hit, but the sample size might need to be expanded before making that conclusion.
+Additionally, @fig-homeRunsVsWalksLeaguePos indicates that there is not a relationship between walks and the position one plays. There may be a relation between position and home runs hit, but the sample size might need to be expanded before making that conclusion.
 
 
 # Code Appendix

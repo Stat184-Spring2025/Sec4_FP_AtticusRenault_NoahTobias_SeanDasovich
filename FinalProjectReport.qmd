@@ -12,7 +12,7 @@ execute:
   echo: False
   warning: False
 bibliography: references.bib
-
+csl: apa7.csl
 ---
 
 # Introduction

@@ -234,14 +234,14 @@ The insights gained from these analyses form the foundation of our results and c
 summary_table <- batting_data %>%
   reframe(
     Variable = c(
-      "home_run", 
-      "walk", 
-      "k_percent", 
-      "b_intent_walk", 
-      "avg_swing_speed", 
-      "launch_angle_avg",
-      "hard_hit_percent",
-      "whiff_percent"
+      "Home Run", 
+      "Walk", 
+      "K %", 
+      "Intentional Walk", 
+      "Avg Swing Speed (mph)", 
+      "Avg Launch Angle",
+      "Hard Hit %",
+      "Whiff %"
     ),
     Mean = c(
       mean(home_run, na.rm = TRUE), 

@@ -25,7 +25,7 @@ In this project, we explore three core research questions:
 2.  Does the league a batter plays in affect his batting performance?
 3.  What factors (e.g., home runs, whiff %, strikeout %, hard hit %, average launch angle) are most influenced by bat speed for Major League Baseball batters?
 
-These questions aim to understand bat speed's place in baseball today and the role of external factors in affecting a batter's approach/training. The insights from this data analysis could influence multiple levels of the baseball pipeline. At the training stage, these results may reveal how valuable bat speed is as a trainable skill. When thinking about position, these findings could result in further discussion about balancing defensive and offensive proficiency. At a structural level, our analysis can be used in determining if the National and American leagues value different attributes in a player.
+These questions aim to understand bat speed's place in baseball today and the role of external factors in affecting a batter's approach/training. The insights from this data analysis could influence multiple levels of the baseball pipeline. At the training stage, these results may reveal how valuable bat speed is as a trainable skill. When thinking about primary position, these findings could result in further discussion about balancing defensive and offensive proficiency. At a structural level, our analysis can be used in determining if the National and American leagues value different attributes in a player.
 
 # Data Provenance
 
@@ -41,8 +41,8 @@ For this project, we used two datasets. The primary dataset is most helpful in a
 ## Secondary Dataset
 
 -   Source: Baseball Reference [@baseballreference]
--   Description: Baseball Reference is part of an independent encyclopedia of sports statistics [@baseballreference]. It provides a lot of the same information as Baseball Savant but is better for finding individual player information. Baseball Reference also has tables of aggregate season data from which we could find batters' league (American or National) and position (infield, outfield, neither, both). The original table for 2024 has 34 columns and 741 rows.
--   Purpose: This dataset was used to collect the league designation (AL or NL) and position for each MLB player in the 2024 regular season. This information is used to group players in data visualizations by common characteristics.
+-   Description: Baseball Reference is part of an independent encyclopedia of sports statistics [@baseballreference]. It provides a lot of the same information as Baseball Savant but is better for finding individual player information. Baseball Reference also has tables of aggregate season data from which we could find batters' league (American or National) and primary position (infield, outfield, or DH). The original table for 2024 has 34 columns and 741 rows.
+-   Purpose: This dataset was used to collect the league designation (AL or NL) and primary position for each MLB player in the 2024 regular season. This information is used to group players in data visualizations by common characteristics.
 -   Cases: Each row represents an MLB player, not necessarily batter, who made an appearance in 2024 with the columns describing various batting statistics.
 
 ## Merging and Cleaning
@@ -63,7 +63,7 @@ To be able to answer both research questions, we merged the two data sets and ap
 
 -   Every column was removed except those indicating name, league, and position.
 
--   Every player, regardless of position, who made a game appearance appears in the dataset.
+-   Every player, regardless of primary position, who made a game appearance appears in the dataset.
 
 ### Merging:
 
@@ -74,9 +74,9 @@ To be able to answer both research questions, we merged the two data sets and ap
 
 ## Final Dataset
 
--   Description: The final dataset has a combination of the statistics relevant to determining correlation between bat speed and other quantitative variables as well as determining relationships between these metrics and league and position. Additionally, the data set contains the first and last names of the 129 qualified players.
+-   Description: The final dataset has a combination of the statistics relevant to determining correlation between bat speed and other quantitative variables as well as determining relationships between these metrics and league and primary position. Additionally, the data set contains the first and last names of the 129 qualified players.
 -   Purpose: This dataset streamlines the analysis of bat speed by only including statistics that are likely to be influenced by bat speed.
--   Case: Each row represents an MLB player, with columns capturing their batting statistics, league, and position.
+-   Case: Each row represents an MLB player, with columns capturing their batting statistics, league, and primary position.
 
 ```{r}
 ## Load Necessary Packages
@@ -498,7 +498,7 @@ ggplot(combined_data, aes(x = walk, y = home_run, color = Pos)) +
 
 Concerning bat speed's influence on other metrics for qualified MLB batters in the 2024 season, there are positive correlations between bat speed and home runs (@homeRunvsAvgSwingSpeed) and bat speed and strikeout % (@kvsAvgSwingSpeed). The distribution for bat speed vs. strikeout %, however, is more spread, indicating a weaker correlation. @correlationHeatmap explores more correlations concerning bat speed and additionally distinguishes the relationships between other batting metrics. Notable positive correlations include those between strikeout % and whiff % as well as between average swing speed and hard hit %.
 
-With respect to league and position for qualified batters in the 2024 MLB season, there is no relationship between the a batter's league and his average bat speed or a batter's league and his average home runs as displayed by @avgSwingSpeedLeague and @homeRunsLeague. 
+With respect to league and primary position for qualified batters in the 2024 MLB season, there is no relationship between the a batter's league and his average bat speed or a batter's league and his average home runs as displayed by @avgSwingSpeedLeague and @homeRunsLeague. 
 
 Additionally, @homeRunsVsWalksLeaguePos indicates that there is not a relationship between walks and the position one plays. There may be a relation between position and home runs hit, but the sample size might need to be expanded before making that conclusion.
 
@@ -781,3 +781,17 @@ ggplot(combined_data, aes(x = walk, y = home_run, color = Pos)) +
   theme_minimal()
 ```
 # References
+
+@misc{baseballsavant,
+  author = {{Baseball Savant}},
+  title = {Baseball Savant player data},
+  year = {2024},
+  note = {Retrieved May 4, 2025, from https://baseballsavant.mlb.com/}
+}
+
+@misc{baseballreference,
+  author = {{Baseball Reference}},
+  title = {Baseball statistics and history},
+  year = {2024},
+  note = {Retrieved May 4, 2025, from https://www.baseball-reference.com/}
+}

@@ -309,6 +309,8 @@ Key Insights:
 
 ## Factors Influenced by Average Bat Speed
 
+Our analysis of bat speed continues with closer look at potential correlations between bat speed and other metrics. Specifically, the following section contains two scatterplots: one comparing bat speed to home runs and the other comparing bat speed to strikeout %. These visuals are followed up by a correlation heatmap which displays correlations between metrics broadly.
+
 ### Scatter Plots
 
 @homeRunvsAvgSwingSpeed visualizes the correlation between average bat speed (interchangeable with average swing speed) and home runs hit by qualified MLB batters. Home runs are increasingly emphasized in modern baseball, so this scatterplot could shed some light on how these metrics are related.
@@ -405,6 +407,8 @@ ggplot(correlation_melt, aes(x = Var1, y = Var2, fill = value)) +
 -   There are no negative correlations between variables; they all generally increase with respect to each other.
 
 ## Influence of League and Position
+
+Now that we have examined relationships between batting metrics, we will expand our analysis to categorical factors: league and position. It's worth noting that the National League adopted the DH only as recently as 2022 (before that, pitchers hit). The following bar graphs and scatterplots may reveal any remnants of pitcher-lowered average bat speed. 
 
 ### Bar Graphs
 

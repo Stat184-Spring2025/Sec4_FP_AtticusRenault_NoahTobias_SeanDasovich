@@ -35,7 +35,6 @@ This repository contains code, data, and documentation used in the analysis.
 
 | Project_Guidelines.md       | Prof Hatfield rules and expectations of the project. |
 
-| NOTES                       | notes used durring project. |
 
 ## Data Sources and Acknowledgements
 

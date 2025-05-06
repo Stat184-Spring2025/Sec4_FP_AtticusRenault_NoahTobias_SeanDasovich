@@ -4,7 +4,7 @@ author:
   - "Atticus Renault"
   - "Noah Tobias"
   - "Sean Dasovich"
-date: "DUE DATE"
+date: "May 7, 2025"
 format: pdf
 number-sections: false
 fig-cap: true
@@ -109,7 +109,8 @@ batting_data <- mlb_data_raw %>%
 
 # Prepare batting_data for merging
 batting_data_for_combo <- batting_data %>%
-  separate(`last_name, first_name`, into = c("LastName", "FirstName"), sep = ", ", remove = FALSE) %>%
+  separate(`last_name, first_name`, into = c("LastName", "FirstName"), 
+sep = ", ", remove = FALSE) %>%
   select(-`last_name, first_name`) %>%
   mutate(
     Player = paste(FirstName, LastName),
@@ -377,7 +378,7 @@ batting_data_renamed <- batting_data %>%
     "Intentional Walks" = b_intent_walk,
     "Avg Swing Speed (mph)" = avg_swing_speed,
     "Avg Launch Angle" = launch_angle_avg,
-    "Hard-Hit %" = hard_hit_percent,
+    "Hard Hit %" = hard_hit_percent,
     "Whiff %" = whiff_percent
   )
 # Compute correlation matrix after removing Player name columns
